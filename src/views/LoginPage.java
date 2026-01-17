@@ -1,5 +1,136 @@
 package views;
 
-public class LoginPage {
+import controllers.AdminController;
 
+import javax.swing.*;
+import java.awt.*;
+
+public class LoginPage extends JFrame {
+
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JButton loginButton;
+    private JButton resetButton;
+
+    private int attemptsLeft = 3;
+
+    public LoginPage() {
+        setTitle("Login - Parking System");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(420, 260);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(10, 10));
+
+        // Title 
+        JLabel title = new JLabel("Admin Login", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 16));
+        add(title, BorderLayout.NORTH);
+
+        // Form 
+        JPanel form = new JPanel(new GridLayout(2, 2, 10, 10));
+        form.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+
+        form.add(new JLabel("Username:"));
+        usernameField = new JTextField();
+        form.add(usernameField);
+
+        form.add(new JLabel("Password:"));
+        passwordField = new JPasswordField();
+        form.add(passwordField);
+
+        add(form, BorderLayout.CENTER);
+
+        // Buttons 
+        loginButton = new JButton("Login");
+        resetButton = new JButton("Reset Login");
+
+        resetButton.setEnabled(false); // disabled by default
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(loginButton);
+        buttonPanel.add(resetButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Actions
+        loginButton.addActionListener(e -> handleLogin());
+
+        resetButton.addActionListener(e -> resetLogin());
+
+        // Press Enter to login
+        getRootPane().setDefaultButton(loginButton);
+
+        setVisible(true);
+    }
+
+    private void handleLogin() {
+        String username = usernameField.getText().trim();
+        String password = new String(passwordField.getPassword());
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter username and password.",
+                    "Input Required",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        AdminController adminController = new AdminController();
+
+        if (adminController.login(username, password)) {
+            // Successful login
+            new AdminPage();
+            dispose();
+            return;
+        }
+
+        // Failed login 
+        attemptsLeft--;
+        passwordField.setText(""); // clear password for security
+
+        if (attemptsLeft <= 0) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Too many failed attempts.\nLogin has been disabled.",
+                    "Login Locked",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            lockLogin();
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Invalid username or password.\nAttempts left: " + attemptsLeft,
+                    "Login Failed",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void lockLogin() {
+        loginButton.setEnabled(false);
+        usernameField.setEnabled(false);
+        passwordField.setEnabled(false);
+        resetButton.setEnabled(true);
+    }
+
+    private void resetLogin() {
+        attemptsLeft = 3;
+
+        usernameField.setText("");
+        passwordField.setText("");
+
+        usernameField.setEnabled(true);
+        passwordField.setEnabled(true);
+        loginButton.setEnabled(true);
+        resetButton.setEnabled(false);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Login has been reset.\nYou may try again.",
+                "Login Reset",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
 }
