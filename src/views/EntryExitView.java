@@ -33,7 +33,7 @@ public class EntryExitView extends JFrame {
         gbc.gridy = 2;
         panel.add(ExitButton, gbc);
 
-        JButton TicketButton = new JButton("View Ticekt");
+        JButton TicketButton = new JButton("View Ticket");
         TicketButton.setPreferredSize(btnSize);
         gbc.gridy = 3;
         panel.add(TicketButton, gbc);
@@ -46,11 +46,13 @@ public class EntryExitView extends JFrame {
         });        
 
         ExitButton.addActionListener(e -> {
-
+            new ExitPage().setVisible(true); 
+            this.setVisible(false);
         });
 
         TicketButton.addActionListener(e -> {
-
+            new TicketView().setVisible(true); 
+            this.setVisible(false);
         });
 
         add(panel);
