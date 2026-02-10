@@ -18,23 +18,27 @@ public class AdminController {
     public AdminController() {
         this.loginController = new LoginController();
 
+        // Load saved fine scheme
         FineSchemeType scheme = getFineSchemeFromFile();
         this.fineContext = new FineContext(strategyFromScheme(scheme));
 
+        // Ticket file service
         this.ticketFileService = new TicketFileService("data/ticket.txt");
 
-        // 5 floors, 20 spots/floor, 4 rows, 5 spots/row => labels like F1-R1-S1
+        // 5 floors, 20 spots per floor, 4 rows per floor, 5 spots per row
         this.config = new ParkingStructureConfig(5, 20, 4, 5);
 
+        // Report service
         this.reportService = new ReportService(ticketFileService, config);
     }
 
-    // ===== login =====
+    // LOGIN
     public boolean login(String user, String pass) {
         return loginController.authenticateAdmin(user, pass);
     }
 
-    // ===== fine scheme =====
+    // FINE SCHEME
+
     public FineSchemeType getFineSchemeFromFile() {
         var lines = SimpleFile.readAllLines(fineSchemeFilePath);
         if (lines.isEmpty()) return FineSchemeType.FIXED;
@@ -54,17 +58,18 @@ public class AdminController {
         };
     }
 
-    // dummy preview so scheme change looks different
+    // Dummy preview 
     public String getFineSchemePreview() {
         StringBuilder sb = new StringBuilder();
-        sb.append("sample fine preview (dummy):\n");
-        sb.append("  1 hour: RM ").append(String.format("%.2f", fineContext.calculateFine(1))).append("\n");
-        sb.append("  2 hours: RM ").append(String.format("%.2f", fineContext.calculateFine(2))).append("\n");
-        sb.append("  5 hours: RM ").append(String.format("%.2f", fineContext.calculateFine(5))).append("\n");
+        sb.append("=== fine scheme preview ===\n");
+        sb.append("1 hour  : RM ").append(String.format("%.2f", fineContext.calculateFine(1))).append("\n");
+        sb.append("2 hours : RM ").append(String.format("%.2f", fineContext.calculateFine(2))).append("\n");
+        sb.append("5 hours : RM ").append(String.format("%.2f", fineContext.calculateFine(5))).append("\n");
         return sb.toString();
     }
 
-    // ===== reports =====
+    // REPORTS
+
     public String generateReport(AdminReport.Type type) {
         return reportService.generate(type);
     }
