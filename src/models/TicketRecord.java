@@ -8,7 +8,7 @@ public class TicketRecord {
     private final double paymentAmount;
     private final String status;
     private final double fineAmount;
-    private final String spot; // optional
+    private final String spot; 
 
     public TicketRecord(String ticketId, String plate, String entryTime, String exitTime,
                         double paymentAmount, String status, double fineAmount, String spot) {

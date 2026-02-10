@@ -12,11 +12,7 @@ public class FineContext {
         this.strategy = strategy;
     }
 
-    public double calculateFine(int hours) {
-        return strategy.calculateFine(hours);
-    }
-
-    public String getCurrentScheme() {
-        return strategy.getName();
+    public double calculateFine(int hoursOverstayed) {
+        return strategy.calculateFine(hoursOverstayed);
     }
 }

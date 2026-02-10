@@ -2,13 +2,15 @@ package controllers;
 
 import fine.*;
 import models.*;
-import reports.*;
 import utils.SimpleFile;
 
 public class AdminController {
 
     private final LoginController loginController;
     private final FineContext fineContext;
+
+    private final TicketFileService ticketFileService;
+    private final ParkingStructureConfig config;
     private final ReportService reportService;
 
     private final String fineSchemeFilePath = "data/fine_scheme.txt";
@@ -16,30 +18,27 @@ public class AdminController {
     public AdminController() {
         this.loginController = new LoginController();
 
-        // Fine strategy setup
         FineSchemeType scheme = getFineSchemeFromFile();
         this.fineContext = new FineContext(strategyFromScheme(scheme));
 
-        // Data + reports
-        TicketRepository repo = new FileTicketRepository("data/ticket.txt");
-        ParkingStructureConfig config = new ParkingStructureConfig(5, 20); // 5 floors, 20 spots each
-        this.reportService = new ReportService(repo, config);
+        this.ticketFileService = new TicketFileService("data/ticket.txt");
+
+        // 5 floors, 20 spots/floor, 4 rows, 5 spots/row => labels like F1-R1-S1
+        this.config = new ParkingStructureConfig(5, 20, 4, 5);
+
+        this.reportService = new ReportService(ticketFileService, config);
     }
 
-    // ========== LOGIN ==========
+    // ===== login =====
     public boolean login(String user, String pass) {
         return loginController.authenticateAdmin(user, pass);
     }
 
-    // ========== FINE SCHEME (Strategy Pattern) ==========
+    // ===== fine scheme =====
     public FineSchemeType getFineSchemeFromFile() {
         var lines = SimpleFile.readAllLines(fineSchemeFilePath);
         if (lines.isEmpty()) return FineSchemeType.FIXED;
         return FineSchemeType.fromString(lines.get(0));
-    }
-
-    public String getCurrentFineScheme() {
-        return fineContext.getCurrentScheme();
     }
 
     public void updateFineScheme(FineSchemeType scheme) {
@@ -55,12 +54,21 @@ public class AdminController {
         };
     }
 
-    // ========== REPORTS ==========
-    public String generateReport(ReportType type) {
+    // dummy preview so scheme change looks different
+    public String getFineSchemePreview() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("sample fine preview (dummy):\n");
+        sb.append("  1 hour: RM ").append(String.format("%.2f", fineContext.calculateFine(1))).append("\n");
+        sb.append("  2 hours: RM ").append(String.format("%.2f", fineContext.calculateFine(2))).append("\n");
+        sb.append("  5 hours: RM ").append(String.format("%.2f", fineContext.calculateFine(5))).append("\n");
+        return sb.toString();
+    }
+
+    // ===== reports =====
+    public String generateReport(AdminReport.Type type) {
         return reportService.generate(type);
     }
 
-    // Parking Structure Views
     public String generateAllFloorsOverview() {
         return reportService.allFloorsOverview();
     }

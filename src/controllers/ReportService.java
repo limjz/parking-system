@@ -1,22 +1,22 @@
-package reports;
+package controllers;
 
 import models.*;
+
 import java.util.*;
 
 public class ReportService {
 
-    private final TicketRepository repo;
+    private final TicketFileService ticketFileService;
     private final ParkingStructureConfig config;
 
-    public ReportService(TicketRepository repo, ParkingStructureConfig config) {
-        this.repo = repo;
+    public ReportService(TicketFileService ticketFileService, ParkingStructureConfig config) {
+        this.ticketFileService = ticketFileService;
         this.config = config;
     }
 
-    public String generate(ReportType type) {
+    public String generate(AdminReport.Type type) {
         return switch (type) {
             case OCCUPANCY_RATE -> occupancy();
-            case PARKING_STRUCTURE -> allFloorsOverview();
             case REVENUE -> revenue();
             case CURRENT_VEHICLES -> currentVehicles();
             case UNPAID_FINES -> unpaidFines();
@@ -27,8 +27,8 @@ public class ReportService {
         Map<String, String> spotToPlate = buildSpotOccupancyMap();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("=== PARKING STRUCTURE OVERVIEW (")
-          .append(config.getFloors()).append(" FLOORS) ===\n\n");
+        sb.append("=== parking structure overview (")
+          .append(config.getFloors()).append(" floors) ===\n\n");
 
         int totalOccupied = 0;
 
@@ -45,24 +45,25 @@ public class ReportService {
             totalOccupied += occupied;
             int available = config.getSpotsPerFloor() - occupied;
 
-            sb.append("Floor ").append(f)
-              .append(": OCCUPIED=").append(occupied)
-              .append(" | AVAILABLE=").append(available)
+            sb.append("floor ").append(f)
+              .append(": occupied=").append(occupied)
+              .append(" | available=").append(available)
               .append("\n");
         }
 
-        sb.append("\nTOTAL: OCCUPIED=").append(totalOccupied)
-          .append(" | AVAILABLE=").append(config.getTotalSpots() - totalOccupied)
-          .append(" | SPOTS=").append(config.getTotalSpots())
+        sb.append("\nTOTAL: occupied=").append(totalOccupied)
+          .append(" | available=").append(config.getTotalSpots() - totalOccupied)
+          .append(" | spots=").append(config.getTotalSpots())
           .append("\n");
 
-        sb.append("\nTip: Use Floor buttons to view individual spot status.\n");
+        sb.append("\nspot format: F#-R#-S# (example: F1-R1-S1)\n");
+
         return sb.toString();
     }
 
     public String floorView(int floorNumber) {
         if (floorNumber < 1 || floorNumber > config.getFloors()) {
-            return "Invalid floor. Choose from 1 to " + config.getFloors() + ".\n";
+            return "invalid floor. choose from 1 to " + config.getFloors() + ".\n";
         }
 
         Map<String, String> spotToPlate = buildSpotOccupancyMap();
@@ -71,68 +72,70 @@ public class ReportService {
         int end = floorNumber * config.getSpotsPerFloor();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("=== FLOOR ").append(floorNumber).append(" VIEW ===\n\n");
+        sb.append("=== floor ").append(floorNumber).append(" view ===\n\n");
 
         int occupied = 0;
 
         for (int spotNo = start; spotNo <= end; spotNo++) {
-            String label = config.toSpotLabel(spotNo);
+            String label = config.toSpotLabel(spotNo); // F1-R1-S1
             String plate = spotToPlate.get(label);
 
             if (plate != null && !plate.isBlank()) occupied++;
 
             sb.append(label).append(" | ")
-              .append((plate == null || plate.isBlank()) ? "AVAILABLE" : "OCCUPIED (Plate: " + plate + ")")
+              .append((plate == null || plate.isBlank()) ? "available" : "occupied (plate: " + plate + ")")
               .append("\n");
         }
 
-        sb.append("\nSummary: OCCUPIED=").append(occupied)
-          .append(" | AVAILABLE=").append(config.getSpotsPerFloor() - occupied)
+        sb.append("\nsummary: occupied=").append(occupied)
+          .append(" | available=").append(config.getSpotsPerFloor() - occupied)
           .append("\n");
 
         return sb.toString();
     }
 
+    // ===== internal report helpers =====
     private String occupancy() {
-        List<TicketRecord> tickets = repo.findAll();
+        List<TicketRecord> tickets = ticketFileService.loadAll();
         long parked = tickets.stream().filter(TicketRecord::isParked).count();
         double rate = config.getTotalSpots() == 0 ? 0 : (parked * 100.0 / config.getTotalSpots());
 
-        return "=== OCCUPANCY RATE ===\n"
-                + "Parked: " + parked + "\n"
-                + "Total Spots: " + config.getTotalSpots() + "\n"
-                + "Rate: " + String.format("%.2f", rate) + "%\n";
+        return "=== occupancy rate ===\n"
+                + "parked: " + parked + "\n"
+                + "total spots: " + config.getTotalSpots() + "\n"
+                + "rate: " + String.format("%.2f", rate) + "%\n";
     }
 
     private String revenue() {
-        List<TicketRecord> tickets = repo.findAll();
+        List<TicketRecord> tickets = ticketFileService.loadAll();
         double total = tickets.stream()
                 .filter(TicketRecord::isPaidOrExited)
                 .mapToDouble(TicketRecord::getPaymentAmount)
                 .sum();
 
-        return "=== REVENUE REPORT ===\nTotal Revenue: RM " + String.format("%.2f", total) + "\n";
+        return "=== revenue report ===\n"
+                + "total revenue: RM " + String.format("%.2f", total) + "\n";
     }
 
     private String currentVehicles() {
-        List<TicketRecord> tickets = repo.findAll();
-        StringBuilder sb = new StringBuilder("=== CURRENT VEHICLES ===\n");
+        List<TicketRecord> tickets = ticketFileService.loadAll();
+        StringBuilder sb = new StringBuilder("=== current vehicles ===\n");
 
         int i = 1;
         for (TicketRecord t : tickets) {
             if (t.isParked()) {
-                sb.append(i++).append(") Plate: ").append(t.getPlate())
-                  .append(" | Entry: ").append(t.getEntryTime())
+                sb.append(i++).append(") plate: ").append(t.getPlate())
+                  .append(" | entry: ").append(t.getEntryTime())
                   .append("\n");
             }
         }
-        if (i == 1) sb.append("No vehicles currently parked.\n");
+        if (i == 1) sb.append("no vehicles currently parked.\n");
         return sb.toString();
     }
 
     private String unpaidFines() {
-        List<TicketRecord> tickets = repo.findAll();
-        StringBuilder sb = new StringBuilder("=== UNPAID FINES ===\n");
+        List<TicketRecord> tickets = ticketFileService.loadAll();
+        StringBuilder sb = new StringBuilder("=== unpaid fines ===\n");
 
         int count = 0;
         double total = 0;
@@ -141,27 +144,27 @@ public class ReportService {
             if (t.isUnpaidFine()) {
                 count++;
                 total += t.getFineAmount();
-                sb.append(count).append(") Plate: ").append(t.getPlate())
-                  .append(" | Fine: RM ").append(String.format("%.2f", t.getFineAmount()))
-                  .append(" | Status: ").append(t.getStatus())
+                sb.append(count).append(") plate: ").append(t.getPlate())
+                  .append(" | fine: RM ").append(String.format("%.2f", t.getFineAmount()))
+                  .append(" | status: ").append(t.getStatus())
                   .append("\n");
             }
         }
 
-        if (count == 0) sb.append("No unpaid fines.\n");
-        else sb.append("\nTotal Unpaid Amount: RM ").append(String.format("%.2f", total)).append("\n");
+        if (count == 0) sb.append("no unpaid fines.\n");
+        else sb.append("\ntotal unpaid amount: RM ").append(String.format("%.2f", total)).append("\n");
 
         return sb.toString();
     }
 
-    // Build spot occupancy map using ticket spot if present; otherwise auto-assign.
+    // spot occupancy map (use spot if provided, otherwise auto-assign)
     private Map<String, String> buildSpotOccupancyMap() {
-        List<TicketRecord> parked = repo.findAll().stream().filter(TicketRecord::isParked).toList();
+        List<TicketRecord> parked = ticketFileService.loadAll().stream().filter(TicketRecord::isParked).toList();
 
         Map<String, String> spotToPlate = new HashMap<>();
         Set<String> taken = new HashSet<>();
 
-        // 1) explicit spot
+        // explicit spot
         for (TicketRecord t : parked) {
             String spot = normalizeSpot(t.getSpot());
             if (!spot.isBlank()) {
@@ -170,7 +173,7 @@ public class ReportService {
             }
         }
 
-        // 2) auto-assign
+        // auto assign
         int cursor = 1;
         for (TicketRecord t : parked) {
             if (!normalizeSpot(t.getSpot()).isBlank()) continue;
@@ -191,17 +194,22 @@ public class ReportService {
     private String normalizeSpot(String raw) {
         if (raw == null) return "";
         String s = raw.trim().toUpperCase();
-        if (s.matches("F[1-9]-S\\d{2}")) return s;
-        if (s.matches("[1-9]-\\d{2}")) {
-            String[] p = s.split("-");
-            return "F" + p[0] + "-S" + p[1];
-        }
-        if (s.matches("\\d+")) {
+
+        // already in format F1-R1-S1
+        if (s.matches("F\\d+-R\\d+-S\\d+")) return s;
+
+        // accept older F1-S01 and map it to row/spot if possible
+        if (s.matches("F\\d+-S\\d{2}")) {
+            // example: F1-S07 => treat S07 as index within floor
             try {
-                int n = Integer.parseInt(s);
-                if (n >= 1 && n <= config.getTotalSpots()) return config.toSpotLabel(n);
+                String[] parts = s.split("-");
+                int floor = Integer.parseInt(parts[0].substring(1));
+                int withinFloor = Integer.parseInt(parts[1].substring(1)); // 1..20
+                int global = (floor - 1) * config.getSpotsPerFloor() + withinFloor;
+                return config.toSpotLabel(global);
             } catch (Exception ignored) {}
         }
+
         return "";
     }
 }

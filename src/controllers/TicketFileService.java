@@ -1,18 +1,20 @@
-package models;
+package controllers;
 
+import models.TicketRecord;
 import utils.SimpleFile;
-import java.util.*;
 
-public class FileTicketRepository implements TicketRepository {
+import java.util.ArrayList;
+import java.util.List;
+
+public class TicketFileService {
 
     private final String ticketFilePath;
 
-    public FileTicketRepository(String ticketFilePath) {
+    public TicketFileService(String ticketFilePath) {
         this.ticketFilePath = ticketFilePath;
     }
 
-    @Override
-    public List<TicketRecord> findAll() {
+    public List<TicketRecord> loadAll() {
         List<String> lines = SimpleFile.readAllLines(ticketFilePath);
         List<TicketRecord> records = new ArrayList<>();
 
@@ -24,7 +26,6 @@ public class FileTicketRepository implements TicketRepository {
             String[] p = line.contains("|") ? line.split("\\|") : line.split(",");
             for (int i = 0; i < p.length; i++) p[i] = p[i].trim();
 
-            // Expected (best-effort):
             // [0]=id [1]=plate [2]=entry [3]=exit [4]=payment [5]=status [6]=fine [7]=spot(optional)
             String id = safe(p, 0);
             String plate = safe(p, 1);
