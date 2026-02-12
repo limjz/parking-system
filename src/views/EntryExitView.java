@@ -1,4 +1,4 @@
-package views;
+package views;  
 
 import java.awt.*;
 import javax.swing.*;
@@ -6,41 +6,56 @@ import utils.Config;
 
 public class EntryExitView extends JFrame {
 
-  public EntryExitView() { 
-    super("Entry/Exit View");
-    setSize (Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
-    
-    JPanel buttonPanel = new JPanel(new GridBagLayout()); 
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(10, 10, 10, 10);
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    
-    // --------------- Buttons -----------------
-    gbc.gridx = 0; 
-    gbc.gridy = 0;
-    JButton entryButton = new JButton("Entry");
-    buttonPanel.add (entryButton, gbc);
+    //private EntryExitController controller;
 
+    public EntryExitView() {
+        super("Customer Portal");
+        //this.controller = new EntryExitController();
 
-    gbc.gridx = 1;
-    JButton exitButton = new JButton("Exit");
-    buttonPanel.add (exitButton, gbc);
+        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+        setLocationRelativeTo(null);
 
-    gbc.gridy = 1;
-    JButton ticketButton = new JButton("Show Ticker");
-    buttonPanel.add (ticketButton, gbc); 
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
 
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.CENTER;
+        Dimension btnSize = new Dimension(175, 25);
 
-    JLabel titleLabel = new JLabel ("Welcom to the Car Park System", SwingConstants.CENTER);
+        // Buttons
+        JButton EntryButton = new JButton("Entry");
+        EntryButton.setPreferredSize(btnSize);
+        gbc.gridy = 1;
+        panel.add(EntryButton, gbc);
 
+        JButton ExitButton = new JButton("Exit");
+        ExitButton.setPreferredSize(btnSize);
+        gbc.gridy = 2;
+        panel.add(ExitButton, gbc);
 
+        JButton TicketButton = new JButton("View Ticket");
+        TicketButton.setPreferredSize(btnSize);
+        gbc.gridy = 3;
+        panel.add(TicketButton, gbc);
 
-    add (titleLabel, gbc);
-    add (buttonPanel);
+        // Action Listeners
+        EntryButton.addActionListener(e -> {
+            EntryPage entryPage = new EntryPage();
+            entryPage.setVisible(true);
+            this.setVisible(false);
+        });        
 
+        ExitButton.addActionListener(e -> {
+            new ExitPage().setVisible(true); 
+            this.setVisible(false);
+        });
 
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setVisible(true);
-  }
+        TicketButton.addActionListener(e -> {
+            new TicketView().setVisible(true); 
+            this.setVisible(false);
+        });
 
+        add(panel);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+    }
 }
