@@ -17,7 +17,7 @@ public class TicketView extends JFrame {
     private JLabel lblHasCard = new JLabel("-");
     private JLabel lblEntry = new JLabel("-");
     private JLabel lblExit = new JLabel("-");
-    private JLabel lblDuration = new JLabel("-");
+    private JLabel lbldurationation = new JLabel("-");
 
     public TicketView() {
         setTitle("View Active Tickets");
@@ -48,7 +48,7 @@ public class TicketView extends JFrame {
         infoPanel.add(new JLabel("Has Card:")); infoPanel.add(lblHasCard);
         infoPanel.add(new JLabel("Entry Time:")); infoPanel.add(lblEntry);
         infoPanel.add(new JLabel("Exit Time:")); infoPanel.add(lblExit);
-        infoPanel.add(new JLabel("Duration:")); infoPanel.add(lblDuration);
+        infoPanel.add(new JLabel("durationation:")); infoPanel.add(lbldurationation);
 
         // Styles
         Font font = new Font("Arial", Font.BOLD, 14);
@@ -72,7 +72,7 @@ public class TicketView extends JFrame {
     }
 
     private void loadTickets() {
-        List<String> lines = FileHandler.readAllLines(Config.TICKET_file);
+        List<String> lines = FileHandler.readAllLines(Config.TICKET_FILE);
         
         for (String line : lines) {
             try {
@@ -87,9 +87,10 @@ public class TicketView extends JFrame {
                 String spot = parts[4];
                 String time = parts[5];
                 String exit = (parts.length > 6) ? parts[6] : null;
-                String dur = (parts.length > 7) ? parts[7] : null;
+                String duration = (parts.length > 7) ? parts[7] : null;
+                String pay_amount = (parts.length > 8) ? parts[8] : null;
 
-                Ticket t = new Ticket(plate, type, isPerson, hasCard, spot, time, exit, dur);
+                Ticket t = new Ticket(plate, type, isPerson, hasCard, spot, time, exit, duration, pay_amount);
                 vehicleCombo.addItem(t);
                 
             } catch (Exception e) {
@@ -113,7 +114,7 @@ public class TicketView extends JFrame {
 
             lblEntry.setText(selected.getEntryTimeStr());
             lblExit.setText(selected.getExitTimeStr());
-            lblDuration.setText(selected.getDurationStr());
+            lbldurationation.setText(selected.getDurationStr());
         }
     }
 }

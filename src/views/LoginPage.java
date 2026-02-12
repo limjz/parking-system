@@ -1,9 +1,8 @@
 package views;
 
 import controllers.AdminController;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class LoginPage extends JFrame {
 
@@ -79,7 +78,7 @@ public class LoginPage extends JFrame {
 
         AdminController adminController = new AdminController();
 
-        if (adminController.login(username, password)) {
+        if (adminController.isLogin(username, password)) {
             // Successful login
             new AdminPage();
             dispose();

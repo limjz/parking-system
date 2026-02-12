@@ -13,59 +13,60 @@ public class Ticket {
     private String spotID;
     private LocalDateTime entryTime;
     
-    // --- New Fields ---
+    // Exit fields
     private LocalDateTime exitTime;
     private long durationMinutes;
+    private double payAmount; 
 
-    // --- CONSTRUCTOR 1: Reading from File (8 Arguments) ---
-    // This is the one your ExitPage is trying to call!
-    public Ticket(String plate, String vehicleType, boolean isHandicappedPerson, boolean hasCard, String spotID, String entryStr, String exitStr, String durStr) {
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    // --- CONSTRUCTOR 1: Reading from File ---
+    public Ticket(String plate, String vehicleType, boolean isHandicappedPerson, boolean hasCard, 
+                  String spotID, String entryStr, String exitStr, String durStr, String payStr) {
         this.plate = plate;
         this.vehicleType = vehicleType;
         this.isHandicappedPerson = isHandicappedPerson;
         this.hasCard = hasCard;
         this.spotID = spotID;
         
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try { this.entryTime = LocalDateTime.parse(entryStr, FMT); } 
+        catch (Exception e) { this.entryTime = LocalDateTime.now(); }
 
-        // Parse Entry Time
-        try { 
-            this.entryTime = LocalDateTime.parse(entryStr, fmt); 
-        } catch (Exception e) { 
-            this.entryTime = LocalDateTime.now(); 
+        if (exitStr != null && !exitStr.equals("null") && !exitStr.equals("-")) {
+            try { this.exitTime = LocalDateTime.parse(exitStr, FMT); } catch (Exception e) {}
+        }
+        
+        if (durStr != null && !durStr.equals("null")) {
+            try { this.durationMinutes = Long.parseLong(durStr); } catch (Exception e) {}
         }
 
-        // Parse Exit Time (if exists)
-        if (exitStr != null && !exitStr.equals("null") && !exitStr.isEmpty()) {
-            try { 
-                this.exitTime = LocalDateTime.parse(exitStr, fmt); 
-            } catch (Exception e) {}
-        }
-
-        // Parse Duration (if exists)
-        if (durStr != null && !durStr.equals("null") && !durStr.isEmpty()) {
-            try { 
-                this.durationMinutes = Long.parseLong(durStr); 
-            } catch (Exception e) {}
+        if (payStr != null && !payStr.equals("null")) {
+             try { this.payAmount = Double.parseDouble(payStr); } catch (Exception e) {}
         }
     }
 
-    // --- CONSTRUCTOR 2: New Entry (5 Arguments) ---
+    // --- CONSTRUCTOR 2: New Entry ---
     public Ticket(String plate, String vehicleType, boolean isHandicappedPerson, boolean hasCard, String spotID) {
-        this(plate, vehicleType, isHandicappedPerson, hasCard, spotID, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), null, null);
+        this.plate = plate;
+        this.vehicleType = vehicleType;
+        this.isHandicappedPerson = isHandicappedPerson;
+        this.hasCard = hasCard;
+        this.spotID = spotID;
+        this.entryTime = LocalDateTime.now();
     }
 
-    // --- LOGIC: Calculate Exit ---
+    // --- LOGIC ---
     public void processExit() {
         this.exitTime = LocalDateTime.now();
         this.durationMinutes = Duration.between(entryTime, exitTime).toMinutes();
-        if (durationMinutes < 0) durationMinutes = 0; 
+        if (durationMinutes < 0) durationMinutes = 0;
+        // Simple fee logic (Admin Strategy overrides this in reports, but UI needs immediate feedback)
+        this.payAmount = (durationMinutes / 60.0 + 1) * 2.0; 
     }
 
-    // --- Save Format ---
+    // --- SAVE FORMAT (Pipe Delimited) ---
     public String toFileString() {
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String exitStr = (exitTime == null) ? "null" : exitTime.format(fmt);
+        String exitStr = (exitTime == null) ? "null" : exitTime.format(FMT);
         
         return String.join(Config.DELIMITER_WRITE, 
             plate, 
@@ -73,33 +74,29 @@ public class Ticket {
             String.valueOf(isHandicappedPerson), 
             String.valueOf(hasCard),
             spotID, 
-            entryTime.format(fmt),
+            entryTime.format(FMT),
             exitStr,
-            String.valueOf(durationMinutes)
+            String.valueOf(durationMinutes),
+            String.format("%.2f", payAmount)
         );
     }
 
-    // --- Getters ---
+    // --- GETTERS ---
     public String getPlate() { return plate; }
     public String getVehicleType() { return vehicleType; }
     public boolean isHandicappedPerson() { return isHandicappedPerson; }
     public boolean hasCard() { return hasCard; }
     public String getSpotID() { return spotID; }
+    public double getPayAmount() { return payAmount; }
     
-    public String getEntryTimeStr() { return entryTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); }
-    
-    public String getExitTimeStr() { 
-        if(exitTime == null) return "-";
-        return exitTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); 
-    }
-    
+    public String getEntryTimeStr() { return entryTime.format(FMT); }
+    public String getExitTimeStr() { return (exitTime == null) ? "-" : exitTime.format(FMT); }
     public String getDurationStr() { 
         if(exitTime == null) return "-";
-        long hours = durationMinutes / 60;
-        long mins = durationMinutes % 60;
-        return hours + "h " + mins + "m";
+        return (durationMinutes / 60) + "h " + (durationMinutes % 60) + "m";
     }
 
+
     @Override
-    public String toString() { return plate; }
+    public String toString() { return plate + " (" + spotID + ")"; }
 }

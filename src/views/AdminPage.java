@@ -1,26 +1,28 @@
 package views;
 
-import controllers.*;
-
+import controllers.AdminController;
+import controllers.FineSchemeType; // Ensure this matches your package
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import models.AdminReport;
+import utils.Config;
 
 public class AdminPage extends JFrame {
 
     private final AdminController adminController = new AdminController();
 
-    private final JLabel schemeLabel = new JLabel();
-    private final JComboBox<FineSchemeType> schemeBox =
-            new JComboBox<>(FineSchemeType.values());
-    private final JButton applyBtn = new JButton("Apply");
-
     private final JTextArea output = new JTextArea();
     private final JLabel statusBar = new JLabel("Ready.");
 
+    // Fine scheme UI
+    private final JLabel schemeLabel = new JLabel();
+    private final JComboBox<FineSchemeType> schemeBox = new JComboBox<>(FineSchemeType.values());
+    private final JButton applyBtn = new JButton("Apply");
+
     public AdminPage() {
-        setTitle("University Parking Lot Management System — Admin");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setTitle("University Parking Lot Management System — " + Config.adminUser);
+   
 
         setLayout(new BorderLayout(12, 12));
         ((JComponent) getContentPane()).setBorder(new EmptyBorder(12, 12, 12, 12));
@@ -28,150 +30,157 @@ public class AdminPage extends JFrame {
         add(buildHeader(), BorderLayout.NORTH);
         add(buildLeftMenu(), BorderLayout.WEST);
         add(buildOutputPanel(), BorderLayout.CENTER);
-        add(buildStatusBar(), BorderLayout.SOUTH);
+        add(buildBottomBar(), BorderLayout.SOUTH);
 
-        loadCurrentSchemeToUI();
-
-        setMinimumSize(new Dimension(1000, 620));
-        setLocationRelativeTo(null);
-        setVisible(true);
-    }
-
-    // HEADER 
-    private JPanel buildHeader() {
-        JPanel header = new JPanel(new BorderLayout(10, 10));
-
-        JLabel title = new JLabel("University Parking Lot Management System — Admin");
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
-
-        JPanel schemePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        schemePanel.add(new JLabel("Fine Scheme: "));
-        schemePanel.add(schemeLabel);
-        schemePanel.add(schemeBox);
-        schemePanel.add(applyBtn);
-
+        // wire apply action once
         applyBtn.addActionListener(e -> {
             FineSchemeType selected = (FineSchemeType) schemeBox.getSelectedItem();
             if (selected == null) selected = FineSchemeType.FIXED;
 
             adminController.updateFineScheme(selected);
             schemeLabel.setText(selected.name());
-            setStatus("Fine scheme updated to " + selected.name() + " (future entries only).");
-            output.append("\n[INFO] Fine scheme updated to " + selected.name() + " (future entries only)\n");
+            setStatus("fine scheme updated: " + selected.name());
+
+            // show dummy preview
+            output.append("\n[preview] scheme changed to " + selected.name() + "\n");
+            output.append(adminController.getFineSchemePreview());
+            output.append("\n");
         });
 
+        loadCurrentSchemeToUI();
+
+        setMinimumSize(new Dimension(1050, 650));
+        setLocationRelativeTo(null);
+        setVisible(true);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    // ===== HEADER =====
+    private JPanel buildHeader() {
+        JPanel header = new JPanel(new BorderLayout(10, 10));
+        JLabel title = new JLabel("University Parking Lot Management System — Admin");
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
         header.add(title, BorderLayout.WEST);
-        header.add(schemePanel, BorderLayout.EAST);
         return header;
     }
 
-    // LEFT MENU 
+    // ===== LEFT MENU =====
     private JPanel buildLeftMenu() {
         JPanel menu = new JPanel();
         menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
         menu.setBorder(BorderFactory.createTitledBorder("Actions"));
+        menu.setPreferredSize(new Dimension(340, 0));
 
-        // Make the left side wider so everything fits nicely
-        menu.setPreferredSize(new Dimension(320, 0));
+        // ---- Fine Scheme ----
+        JLabel fsLabel = new JLabel("Fine Scheme");
+        fsLabel.setFont(fsLabel.getFont().deriveFont(Font.BOLD));
+        fsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        menu.add(fsLabel);
+        menu.add(Box.createVerticalStrut(8));
 
-        // Parking Structure 
+        JPanel finePanel = new JPanel(new GridLayout(3, 1, 6, 6));
+        finePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
+
+        JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        row1.add(new JLabel("Current scheme: ")); 
+        row1.add(schemeLabel);
+
+        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        row2.add(new JLabel("Select scheme: ")); 
+        row2.add(schemeBox);
+
+        JPanel row3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        applyBtn.setPreferredSize(new Dimension(90, 28));
+        row3.add(applyBtn);
+
+        finePanel.add(row1); 
+        finePanel.add(row2); 
+        finePanel.add(row3);
+
+        menu.add(finePanel);
+
+        menu.add(Box.createVerticalStrut(15));
+        menu.add(new JSeparator());
+        menu.add(Box.createVerticalStrut(10));
+
+
+
+        // ---- Parking Structure ----
         JLabel psLabel = new JLabel("Parking Structure");
         psLabel.setFont(psLabel.getFont().deriveFont(Font.BOLD));
         psLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         menu.add(psLabel);
         menu.add(Box.createVerticalStrut(8));
 
-        JButton overviewBtn = new JButton("Overview (All Floors)");
+        JButton overviewBtn = new JButton("Overview (All floors)");
         overviewBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         overviewBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        
         overviewBtn.addActionListener(e -> {
             output.setText(adminController.generateAllFloorsOverview());
-            setStatus("Showing: Parking Structure Overview");
+            setStatus("Showing parking structure overview");
         });
+
         menu.add(overviewBtn);
         menu.add(Box.createVerticalStrut(8));
 
-        // Floor buttons F1–F5 (fixed one-row, no wrap) 
+        // Floor Buttons
         JPanel floorsPanel = new JPanel(new GridLayout(1, 5, 8, 8));
         floorsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Fixed width so GridLayout doesn't squeeze text into "..."
         floorsPanel.setPreferredSize(new Dimension(300, 42));
         floorsPanel.setMaximumSize(new Dimension(300, 42));
 
-        JButton f1 = new JButton("F1");
-        JButton f2 = new JButton("F2");
-        JButton f3 = new JButton("F3");
-        JButton f4 = new JButton("F4");
-        JButton f5 = new JButton("F5");
-
-        styleFloorButton(f1);
-        styleFloorButton(f2);
-        styleFloorButton(f3);
-        styleFloorButton(f4);
-        styleFloorButton(f5);
-
-        f1.addActionListener(e -> showFloor(1));
-        f2.addActionListener(e -> showFloor(2));
-        f3.addActionListener(e -> showFloor(3));
-        f4.addActionListener(e -> showFloor(4));
-        f5.addActionListener(e -> showFloor(5));
-
-        floorsPanel.add(f1);
-        floorsPanel.add(f2);
-        floorsPanel.add(f3);
-        floorsPanel.add(f4);
-        floorsPanel.add(f5);
-
+        for (int i = 1; i <= 5; i++) {
+            JButton fBtn = new JButton("F" + i);
+            styleFloorButton(fBtn);
+            int floorNum = i;
+            fBtn.addActionListener(e -> showFloor(floorNum));
+            floorsPanel.add(fBtn);
+        }
         menu.add(floorsPanel);
 
-        menu.add(Box.createVerticalStrut(14));
-        JSeparator sep1 = new JSeparator();
-        sep1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        menu.add(sep1);
+        menu.add(Box.createVerticalStrut(15));
+        menu.add(new JSeparator());
         menu.add(Box.createVerticalStrut(10));
 
-        // Other Reports 
-        menu.add(makeMenuButton("Occupancy Rate",
-                () -> adminController.generateReport(ReportType.OCCUPANCY_RATE)));
+
+
+        // ---- Reports ----
+        JLabel rptLabel = new JLabel("Reports");
+        rptLabel.setFont(rptLabel.getFont().deriveFont(Font.BOLD));
+        rptLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        menu.add(rptLabel);
         menu.add(Box.createVerticalStrut(8));
 
-        menu.add(makeMenuButton("Revenue",
-                () -> adminController.generateReport(ReportType.REVENUE)));
-        menu.add(Box.createVerticalStrut(8));
+        menu.add(makeMenuButton("Occupancy rate", () -> adminController.generateReport(AdminReport.Type.OCCUPANCY_RATE)));
+        menu.add(Box.createVerticalStrut(6));
+        menu.add(makeMenuButton("Revenue", () -> adminController.generateReport(AdminReport.Type.REVENUE)));
+        menu.add(Box.createVerticalStrut(6));
+        menu.add(makeMenuButton("Current vehicles", () -> adminController.generateReport(AdminReport.Type.CURRENT_VEHICLES)));
+        menu.add(Box.createVerticalStrut(6));
+        menu.add(makeMenuButton("Unpaid fines", () -> adminController.generateReport(AdminReport.Type.UNPAID_FINES)));
 
-        menu.add(makeMenuButton("Current Vehicles",
-                () -> adminController.generateReport(ReportType.CURRENT_VEHICLES)));
-        menu.add(Box.createVerticalStrut(8));
+        menu.add(Box.createVerticalStrut(12));
 
-        menu.add(makeMenuButton("Unpaid Fines",
-                () -> adminController.generateReport(ReportType.UNPAID_FINES)));
+        // ---- Refresh/Clear ----
+        JPanel actionRow = new JPanel(new GridLayout(1, 2, 8, 0));
+        actionRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
 
-        menu.add(Box.createVerticalStrut(14));
-        JSeparator sep2 = new JSeparator();
-        sep2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        menu.add(sep2);
-        menu.add(Box.createVerticalStrut(10));
-
-        JButton refreshBtn = new JButton("Refresh Current Scheme");
-        refreshBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        refreshBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        JButton refreshBtn = new JButton("Refresh");
         refreshBtn.addActionListener(e -> {
             loadCurrentSchemeToUI();
-            setStatus("Scheme refreshed.");
+            setStatus("Scheme refreshed");
         });
 
-        JButton clearBtn = new JButton("Clear Output");
-        clearBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        clearBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        JButton clearBtn = new JButton("Clear");
         clearBtn.addActionListener(e -> {
             output.setText("");
-            setStatus("Output cleared.");
+            setStatus("Output cleared!");
         });
 
-        menu.add(refreshBtn);
-        menu.add(Box.createVerticalStrut(8));
-        menu.add(clearBtn);
+        actionRow.add(refreshBtn);
+        actionRow.add(clearBtn);
+        menu.add(actionRow);
 
         return menu;
     }
@@ -181,10 +190,10 @@ public class AdminPage extends JFrame {
         btn.setFont(btn.getFont().deriveFont(Font.BOLD, 12f));
     }
 
-    // OUTPUT PANEL 
+    // ===== OUTPUT PANEL =====
     private JPanel buildOutputPanel() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
-        panel.setBorder(BorderFactory.createTitledBorder("Report Output"));
+        panel.setBorder(BorderFactory.createTitledBorder("Output"));
 
         output.setEditable(false);
         output.setLineWrap(true);
@@ -199,18 +208,30 @@ public class AdminPage extends JFrame {
         return panel;
     }
 
-    // STATUS BAR 
-    private JPanel buildStatusBar() {
-        JPanel bar = new JPanel(new BorderLayout());
+    // ===== BOTTOM BAR =====
+    private JPanel buildBottomBar() {
+        JPanel bottom = new JPanel(new BorderLayout(10, 0));
+        bottom.setBorder(new EmptyBorder(6, 0, 0, 0));
         statusBar.setBorder(new EmptyBorder(6, 8, 6, 8));
-        bar.add(statusBar, BorderLayout.CENTER);
-        return bar;
+        bottom.add(statusBar, BorderLayout.CENTER);
+
+        JButton logoutBtn = new JButton("Logout");
+        logoutBtn.setPreferredSize(new Dimension(100, 30));
+        logoutBtn.addActionListener(e -> {
+            new LoginPage();
+            dispose();
+        });
+
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        right.add(logoutBtn);
+        bottom.add(right, BorderLayout.EAST);
+        return bottom;
     }
 
-    // ACTIONS 
+    // ===== ACTIONS =====
     private void showFloor(int floor) {
         output.setText(adminController.generateFloorView(floor));
-        setStatus("Showing: Floor " + floor + " spot status");
+        setStatus("showing floor " + floor + " spot status");
     }
 
     private JButton makeMenuButton(String label, Supplier<String> action) {
@@ -219,7 +240,7 @@ public class AdminPage extends JFrame {
         b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         b.addActionListener(e -> {
             output.setText(action.get());
-            setStatus("Showing: " + label);
+            setStatus("showing " + label);
         });
         return b;
     }
@@ -230,12 +251,7 @@ public class AdminPage extends JFrame {
         schemeBox.setSelectedItem(current);
 
         if (output.getText().trim().isEmpty()) {
-            output.setText(
-                    "Welcome, Admin.\n\n" +
-                    "Parking Structure supports Floor-by-Floor view (F1–F5).\n" +
-                    "Click 'Overview' or a floor button to view spot availability.\n\n" +
-                    "Fine scheme changes apply to future entries only.\n"
-            );
+            output.setText("Welcome, Admin.\n\nFine scheme changes apply to future calculations.");
         }
     }
 
@@ -243,6 +259,5 @@ public class AdminPage extends JFrame {
         statusBar.setText(msg);
     }
 
-    // Small functional interface (so we don’t need extra imports)
     private interface Supplier<T> { T get(); }
 }

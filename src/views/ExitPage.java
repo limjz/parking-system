@@ -77,7 +77,7 @@ public class ExitPage extends JFrame {
     }
 
     private void loadActiveTickets() {
-        List<String> lines = FileHandler.readAllLines(Config.TICKET_file);
+        List<String> lines = FileHandler.readAllLines(Config.TICKET_FILE);
         for (String line : lines) {
             try {
                 String[] parts = line.split(Config.DELIMITER_READ);
@@ -87,7 +87,7 @@ public class ExitPage extends JFrame {
                 // Only load if NOT exited
                 if (exitTime.equals("null")) {
                     Ticket t = new Ticket(parts[0], parts[1], Boolean.parseBoolean(parts[2]), 
-                                          Boolean.parseBoolean(parts[3]), parts[4], parts[5], null, null);
+                                          Boolean.parseBoolean(parts[3]), parts[4], parts[5], null, null, null);
                     vehicleCombo.addItem(t);
                 }
             } catch (Exception e) {}
