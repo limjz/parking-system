@@ -5,24 +5,23 @@ import java.util.*;
 import models.AdminReport;
 import models.ParkingLayout; // Uses the new AdminReport model
 import models.Ticket;
-import utils.Config;
-import utils.FileHandler;
 
 public class AdminController {
 
-    private final LoginController loginController;
+    private final LoginController loginController = new LoginController();
+    private final FineController fineController = new FineController(); 
+    private final TicketController ticketController = new TicketController(); 
     private final FineContext fineContext;
     private final ParkingLayout layout; // Replaces ParkingStructureConfig
 
     public AdminController() {
-        this.loginController = new LoginController();
-        
+
         // 1. Initialize Layout (5 Floors, 20 Spots/Floor, 4 Rows, 5 Spots/Row)
         this.layout = new ParkingLayout(5, 20, 4, 5);
 
         // 2. Load Fine Scheme
-        FineSchemeType scheme = getFineSchemeFromFile();
-        this.fineContext = new FineContext(strategyFromScheme(scheme));
+        FineSchemeType scheme = fineController.getCurrentScheme();
+        this.fineContext = new FineContext(fineController.createStrategy(scheme));
     }
 
     // --- LOGIN ---
@@ -32,22 +31,12 @@ public class AdminController {
 
     // --- FINE SCHEME ---
     public FineSchemeType getFineSchemeFromFile() {
-        List<String> lines = FileHandler.readAllLines(Config.FINE_SCHEME_FILE);
-        if (lines.isEmpty()) return FineSchemeType.FIXED;
-        return FineSchemeType.fromString(lines.get(0));
+        return fineController.getCurrentScheme();
     }
 
     public void updateFineScheme(FineSchemeType scheme) {
-        fineContext.setStrategy(strategyFromScheme(scheme));
-        FileHandler.updateData(Config.FINE_SCHEME_FILE, scheme.name());
-    }
-
-    private FineStrategy strategyFromScheme(FineSchemeType type) {
-        return switch (type) {
-            case FIXED -> new FixedFine();
-            case HOURLY -> new HourlyFine();
-            case PROGRESSIVE -> new ProgressiveFine();
-        };
+        fineContext.setStrategy(fineController.createStrategy(scheme));
+        fineController.saveScheme(scheme);;
     }
 
     // Preview for Admin Page
@@ -74,7 +63,7 @@ public class AdminController {
 
     // 1. Occupancy Report
     private String reportOccupancy() {
-        long parked = loadAllTickets().stream().filter(t -> t.getExitTimeStr().equals("-")).count();
+        long parked = ticketController.getAllTickets().stream().filter(t -> t.getExitTimeStr().equals("-")).count();
         int totalSpots = layout.getTotalSpots();
         double rate = (parked * 100.0 / totalSpots);
         return "Parked: " + parked + "\nTotal Spots: " + totalSpots + "\nRate: " + String.format("%.2f", rate) + "%";
@@ -82,14 +71,14 @@ public class AdminController {
 
     // 2. Revenue Report
     private String reportRevenue() {
-        double sum = loadAllTickets().stream().mapToDouble(Ticket::getPayAmount).sum();
+        double sum = ticketController.getAllTickets().stream().mapToDouble(Ticket::getPayAmount).sum();
         return "Total Revenue: RM " + String.format("%.2f", sum);
     }
 
     // 3. Current Vehicles Report
     private String reportCurrentVehicles() {
         StringBuilder sb = new StringBuilder("=== CURRENT VEHICLES ===\n");
-        List<Ticket> tickets = loadAllTickets();
+        List<Ticket> tickets = ticketController.getAllTickets();
         boolean found = false;
         
         for (Ticket t : tickets) {
@@ -111,7 +100,7 @@ public class AdminController {
         
         // Get all active tickets mapped by Spot ID
         Map<String, String> occupiedSpots = new HashMap<>();
-        for (Ticket t : loadAllTickets()) {
+        for (Ticket t : ticketController.getAllTickets()) {
             if (t.getExitTimeStr().equals("-")) {
                 occupiedSpots.put(t.getSpotID(), t.getPlate());
             }
@@ -136,24 +125,5 @@ public class AdminController {
         return reportOccupancy() + "\n\n(Use 'Parking Structure' buttons to see detailed floor maps)";
     }
 
-    // --- HELPER: Load Data ---
-    private List<Ticket> loadAllTickets() {
-        List<String> lines = FileHandler.readAllLines(Config.TICKET_FILE);
-        List<Ticket> tickets = new ArrayList<>();
-        
-        for (String line : lines) {
-            try {
-                String[] p = line.split(Config.DELIMITER_READ);
-                if (p.length < 6) continue;
-                // Reconstruct Ticket from File
-                String exit = (p.length > 6) ? p[6] : "null";
-                String dur = (p.length > 7) ? p[7] : "0";
-                String pay = (p.length > 8) ? p[8] : "0";
 
-                tickets.add(new Ticket(p[0], p[1], Boolean.parseBoolean(p[2]), 
-                                       Boolean.parseBoolean(p[3]), p[4], p[5], exit, dur, pay));
-            } catch (Exception e) {}
-        }
-        return tickets;
-    }
 }

@@ -16,13 +16,17 @@ public class Ticket {
     // Exit fields
     private LocalDateTime exitTime;
     private long durationMinutes;
-    private double payAmount; 
+    private double parkingFeeAmount; // normal parking fee
+    private double fineAmount; // penalty fine  
+    private double totalPayAmount; // fine + parking fee
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     // --- CONSTRUCTOR 1: Reading from File ---
     public Ticket(String plate, String vehicleType, boolean isHandicappedPerson, boolean hasCard, 
-                  String spotID, String entryStr, String exitStr, String durStr, String payStr) {
+                  String spotID, String entryStr, String exitStr, String durStr, 
+                  String payStr, String feeStr, String fineStr) {
+
         this.plate = plate;
         this.vehicleType = vehicleType;
         this.isHandicappedPerson = isHandicappedPerson;
@@ -40,9 +44,9 @@ public class Ticket {
             try { this.durationMinutes = Long.parseLong(durStr); } catch (Exception e) {}
         }
 
-        if (payStr != null && !payStr.equals("null")) {
-             try { this.payAmount = Double.parseDouble(payStr); } catch (Exception e) {}
-        }
+        try { this.totalPayAmount = Double.parseDouble(payStr); } catch (Exception e) {}
+        try { this.parkingFeeAmount = Double.parseDouble(feeStr); } catch (Exception e) {}
+        try { this.fineAmount = Double.parseDouble(fineStr); } catch (Exception e) {}
     }
 
     // --- CONSTRUCTOR 2: New Entry ---
@@ -55,16 +59,7 @@ public class Ticket {
         this.entryTime = LocalDateTime.now();
     }
 
-    // --- LOGIC ---
-    public void processExit() {
-        this.exitTime = LocalDateTime.now();
-        this.durationMinutes = Duration.between(entryTime, exitTime).toMinutes();
-        if (durationMinutes < 0) durationMinutes = 0;
-        // Simple fee logic (Admin Strategy overrides this in reports, but UI needs immediate feedback)
-        this.payAmount = (durationMinutes / 60.0 + 1) * 2.0; 
-    }
-
-    // --- SAVE FORMAT (Pipe Delimited) ---
+    // --- from the object convert to string and save it into .txt ---
     public String toFileString() {
         String exitStr = (exitTime == null) ? "null" : exitTime.format(FMT);
         
@@ -77,7 +72,9 @@ public class Ticket {
             entryTime.format(FMT),
             exitStr,
             String.valueOf(durationMinutes),
-            String.format("%.2f", payAmount)
+            String.format("%.2f", parkingFeeAmount), 
+            String.format("%.2f", fineAmount),       
+            String.format("%.2f", totalPayAmount)    
         );
     }
 
@@ -87,13 +84,42 @@ public class Ticket {
     public boolean isHandicappedPerson() { return isHandicappedPerson; }
     public boolean hasCard() { return hasCard; }
     public String getSpotID() { return spotID; }
-    public double getPayAmount() { return payAmount; }
-    
+    public double getParkingFeeAmount () { return parkingFeeAmount; }
+    public double getFineAmount () { return fineAmount; }
+    public double getPayAmount() { return totalPayAmount; }
+
     public String getEntryTimeStr() { return entryTime.format(FMT); }
     public String getExitTimeStr() { return (exitTime == null) ? "-" : exitTime.format(FMT); }
+    
     public String getDurationStr() { 
-        if(exitTime == null) return "-";
-        return (durationMinutes / 60) + "h " + (durationMinutes % 60) + "m";
+        if (exitTime == null) return "-";
+        
+        long hours = durationMinutes / 60;
+        long mins = durationMinutes % 60;
+        
+        return hours + "h " + mins + "m";    
+    }
+    
+    public double getHourParked () { 
+        if (durationMinutes == 0)  return 0.0; 
+
+        return Math.ceil(durationMinutes / 60.0) ; 
+    }
+    
+    // --- setter ---
+    public void setExitTime (){ 
+        this.exitTime = LocalDateTime.now(); 
+        // exit time subtract entry time --> duration 
+        this.durationMinutes = Duration.between(entryTime, exitTime).toMinutes(); 
+        if (durationMinutes < 0){ 
+            durationMinutes = 0; // time dont have negative 
+        }
+    }
+
+    public void setCost (double fee, double fine){ 
+        this.fineAmount = fine; 
+        this.parkingFeeAmount = fee; 
+        this.totalPayAmount = fee + fine; 
     }
 
 

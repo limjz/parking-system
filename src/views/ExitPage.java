@@ -6,12 +6,11 @@ import java.util.List;
 import javax.swing.*;
 import models.Ticket;
 import utils.Config;
-import utils.FileHandler;
 
 public class ExitPage extends JFrame {
 
     private JComboBox<Ticket> vehicleCombo;
-    private TicketController controller = new TicketController();
+    private TicketController ticketController = new TicketController();
 
     public ExitPage() {
         super("Exit Terminal");
@@ -36,7 +35,14 @@ public class ExitPage extends JFrame {
 
         // Dropdown
         vehicleCombo = new JComboBox<>();
-        loadActiveTickets();
+        List<Ticket> allTickets = ticketController.getAllTickets();
+        for (Ticket t : allTickets)
+        { 
+            // Check if exit time is "-" or "null"
+            if (t.getExitTimeStr().equals("-") || t.getExitTimeStr().equals("null")) {
+                vehicleCombo.addItem(t);
+            }        
+        }
         gbc.gridx = 1; 
         add(vehicleCombo, gbc);
 
@@ -62,35 +68,19 @@ public class ExitPage extends JFrame {
                 JOptionPane.showMessageDialog(this, "Please select a vehicle.");
                 return;
             }
+            // calc the fines and payment 
+            ticketController.processTicketExit(selected);
 
-            // 1. Calculate Exit Time & Duration (In Memory Only)
-            // We do NOT save to file yet.
-            selected.processExit(); 
-
-            // 2. Go to Payment Page
+            // Go to Payment Page
             new PaymentPage(selected).setVisible(true);
             dispose();
         });
 
-        if (vehicleCombo.getItemCount() > 0) vehicleCombo.setSelectedIndex(0);
+        if (vehicleCombo.getItemCount() > 0) {
+            vehicleCombo.setSelectedIndex(0);
+        };
+
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    private void loadActiveTickets() {
-        List<String> lines = FileHandler.readAllLines(Config.TICKET_FILE);
-        for (String line : lines) {
-            try {
-                String[] parts = line.split(Config.DELIMITER_READ);
-                if (parts.length < 6) continue;
-                String exitTime = (parts.length > 6) ? parts[6] : "null";
-                
-                // Only load if NOT exited
-                if (exitTime.equals("null")) {
-                    Ticket t = new Ticket(parts[0], parts[1], Boolean.parseBoolean(parts[2]), 
-                                          Boolean.parseBoolean(parts[3]), parts[4], parts[5], null, null, null);
-                    vehicleCombo.addItem(t);
-                }
-            } catch (Exception e) {}
-        }
-    }
 }

@@ -218,7 +218,8 @@ public class AdminPage extends JFrame {
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.setPreferredSize(new Dimension(100, 30));
         logoutBtn.addActionListener(e -> {
-            new LoginPage();
+            // new LoginPage().setVisible(true);
+            new EntryExitView().setVisible(true);
             dispose();
         });
 

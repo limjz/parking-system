@@ -2,8 +2,8 @@ package fine;
 
 public class FixedFine implements FineStrategy {
     @Override
-    public double calculateFine(int hours) {
-        return hours > 0 ? 50.0 : 0.0;
+    public double calculateFine(double overstayHours) {
+        return overstayHours > 0 ? 50.0 : 0.0; 
     }
 
     @Override
