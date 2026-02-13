@@ -14,7 +14,7 @@ public class ExitPage extends JFrame {
 
     public ExitPage() {
         super("Exit Terminal");
-        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT); // Standard size
+        setSize(Config.WINDOW_WIDTH/2, Config.WINDOW_HEIGHT/2); // Standard size
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
 

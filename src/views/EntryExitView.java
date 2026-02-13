@@ -12,7 +12,7 @@ public class EntryExitView extends JFrame {
         super("Customer Portal");
         //this.controller = new EntryExitController();
 
-        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+        setSize(Config.WINDOW_WIDTH/2, Config.WINDOW_HEIGHT/2);
         setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());

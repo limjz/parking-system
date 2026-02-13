@@ -8,7 +8,7 @@ public class EntryPage extends JFrame {
 
     public EntryPage() {
         super("Entry Terminal");
-        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT/2);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
 

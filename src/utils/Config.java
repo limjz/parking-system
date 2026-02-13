@@ -6,7 +6,7 @@ import javax.swing.JButton;
 
 public class Config {
 
-    public static final int WINDOW_WIDTH = 900; 
+    public static final int WINDOW_WIDTH = 650; 
     public static final int WINDOW_HEIGHT = 650; 
 
 
