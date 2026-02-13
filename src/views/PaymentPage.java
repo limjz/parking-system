@@ -116,16 +116,19 @@ public class PaymentPage extends JFrame {
         JRadioButton rCard = new JRadioButton("Credit/Debit Card");
         JRadioButton rWallet = new JRadioButton("E-Wallet");
         JRadioButton rQR = new JRadioButton("QR Pay");
+        JRadioButton rCash = new JRadioButton("Cash");
         
         ButtonGroup group = new ButtonGroup();
         group.add(rCard); 
         group.add(rWallet); 
         group.add(rQR);
+        group.add(rCash);
         rCard.setSelected(true); 
 
         radioPanel.add(rCard); 
         radioPanel.add(rWallet); 
         radioPanel.add(rQR);
+        radioPanel.add(rCash);
 
         mainPanel.add(radioPanel);
 

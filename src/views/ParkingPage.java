@@ -67,10 +67,10 @@ public class ParkingPage extends JFrame {
         panel.setBorder(BorderFactory.createTitledBorder("Spot Types & Hourly Rates"));
         panel.setBackground(Color.WHITE);
 
-        panel.add(createLegendItem("Compact (RM 2/hr)", COL_COMPACT));
-        panel.add(createLegendItem("Regular (RM 5/hr)", COL_REGULAR));
         panel.add(createLegendItem("Handicapped (RM 2/hr)", COL_HANDICAP));
         panel.add(createLegendItem("Reserved (RM 10/hr)", COL_RESERVED));
+        panel.add(createLegendItem("Compact (RM 2/hr)", COL_COMPACT));
+        panel.add(createLegendItem("Regular (RM 5/hr)", COL_REGULAR));
         panel.add(createLegendItem("Occupied", COL_OCCUPIED));
         return panel;
     }
@@ -173,14 +173,6 @@ public class ParkingPage extends JFrame {
                                     "Vehicle Mismatch: " + vehicleType + " cannot fit in " + spotType, 
                                     "Invalid Selection", 
                                     JOptionPane.WARNING_MESSAGE);
-                                return;
-                            }
-                        }
-
-                        // VIP reserved check
-                        if (spotType == SpotType.RESERVED) {
-                            if (!ticketController.isVip(this.plate)) {
-                                JOptionPane.showMessageDialog(this, "Access Denied: Not a VIP.", "Restricted Access", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                         }
