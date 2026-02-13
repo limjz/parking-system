@@ -125,14 +125,13 @@ public class TicketController {
             }
         }
 
-        if (hasHandicapedCard && spotType.equalsIgnoreCase("Handicapped")){ 
-            return 0;  // handicap driver park at handicapped spot no charge 
+        if (hasHandicapedCard) {
+            if (spotType.equalsIgnoreCase("Handicapped")) {
+                return 0.0; // Free if parked in designated handicapped spot
+            } else {
+                return 2.0; // Flat RM 2.00 if parked anywhere else
+            }
         }
-         
-        // if (hasHandicapedCard)
-        // { 
-        //     return 2.0; // handicap driver flat rate RM2 at all parking 
-        // }
 
         return switch (spotType) { 
             case "Compact" -> 2.0;
