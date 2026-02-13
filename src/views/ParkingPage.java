@@ -136,31 +136,39 @@ public class ParkingPage extends JFrame {
                             boolean sizeFit = false;
                             
                             switch (this.vehicleType) {
-                                // BOTH Motorcycle and Car can park in Compact and Regular
+
+                                // Motorcycle can only park in Compact
                                 case "Motorcycle": 
+                                    if (spotType.equalsIgnoreCase("Compact")) {
+                                        sizeFit = true; 
+                                    }
+                                    break;
+                            
+                                // Car: Compact or Regular
                                 case "Car": 
                                     if (spotType.equalsIgnoreCase("Compact") || spotType.equalsIgnoreCase("Regular")) {
                                         sizeFit = true; 
                                     }
                                     break;
-                            
-                        // 3. Size Compatibility (Only applies if they are not forced into HC spots)
-                                case "SUV/Truck":   
+
+                                // SUV: Regular ONLY
+                                case "SUV/Truck": 
                                     if (spotType.equalsIgnoreCase("Regular")) {
                                         sizeFit = true; 
                                     }
                                     break;
-                                }
-                                if (!sizeFit) {
+                            }
+
+                            if (!sizeFit) {
                                 JOptionPane.showMessageDialog(this, 
-                                    "Restriction: Only Handicapped vehicles can park here.", 
+                                    "Vehicle Mismatch: " + vehicleType + " cannot fit in " + spotType, 
                                     "Invalid Selection", 
                                     JOptionPane.WARNING_MESSAGE);
                                 return;
                             }
                         }
 
-                        // 4. VIP Check
+                        // 3. VIP Check
                         if (spotType.equalsIgnoreCase("Reserved")) {
                             if (!controller.isVip(this.plate)) {
                                 JOptionPane.showMessageDialog(this, "Access Denied: Not a VIP.", "Restricted Access", JOptionPane.ERROR_MESSAGE);
