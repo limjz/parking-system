@@ -2,13 +2,14 @@ package views;
 
 import java.awt.*;
 import javax.swing.*;
+import models.VehicleType;
 import utils.Config;
 
 public class EntryPage extends JFrame {
 
     public EntryPage() {
         super("Entry Terminal");
-        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT/2);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
 
@@ -23,8 +24,8 @@ public class EntryPage extends JFrame {
 
         // Row 1: Vehicle Type
         gbc.gridx = 0; gbc.gridy = 1; add(new JLabel("Vehicle Type:"), gbc);
-        String[] types = {"Motorcycle", "Car", "SUV/Truck"}; 
-        JComboBox<String> vehicleTypeCombo = new JComboBox<>(types);
+        // use the enum from VehicleType to load the drop down
+        JComboBox<VehicleType> vehicleTypeCombo = new JComboBox<>(VehicleType.values());
         gbc.gridx = 1; gbc.gridy = 1; add(vehicleTypeCombo, gbc);     
 
         // Row 2: Is Handicapped?
@@ -38,11 +39,12 @@ public class EntryPage extends JFrame {
         chkHasCard.setEnabled(false); // Disabled by default
         gbc.gridx = 1; gbc.gridy = 3; add(chkHasCard, gbc);
 
-        // --- NEW LOGIC: Prevent Motorcycle from checking "Is Handicapped" ---
+        //Motorcycle cannot park at handicapped spot 
+        // --------- Jcombo Action listener ---------
         vehicleTypeCombo.addActionListener(e -> {
-            String selected = (String) vehicleTypeCombo.getSelectedItem();
+            VehicleType selected = (VehicleType) vehicleTypeCombo.getSelectedItem();
             
-            if ("Motorcycle".equals(selected)) {
+            if (selected == VehicleType.MOTORCYCLE) {
                 // Disable and Reset Handicapped options
                 chkIsHandicapped.setSelected(false);
                 chkIsHandicapped.setEnabled(false);
@@ -55,7 +57,7 @@ public class EntryPage extends JFrame {
             }
         });
         
-        // --- EXISTING LOGIC: Enable Card Checkbox only if Handicapped is selected ---
+        // --- Enable Card Checkbox only if Handicapped is selected ---
         chkIsHandicapped.addActionListener(e -> {
             if (chkIsHandicapped.isSelected()) {
                 chkHasCard.setEnabled(true);
@@ -66,29 +68,36 @@ public class EntryPage extends JFrame {
         });
 
         // Trigger logic immediately (incase default is Motorcycle)
-        if ("Motorcycle".equals(vehicleTypeCombo.getSelectedItem())) {
+        if (vehicleTypeCombo.getSelectedItem() == VehicleType.MOTORCYCLE) {
              chkIsHandicapped.setEnabled(false);
         }
 
-        // Row 4: Buttons
+        // --------- Buttons ---------
         JPanel btnPanel = new JPanel();
-        JButton btnPrevious = new JButton("Previous");
-        JButton btnNext = new JButton("Next");
-        btnPanel.add(btnPrevious);
-        btnPanel.add(btnNext);
+        JButton backButton = new JButton("Back");
+        JButton nextButton = new JButton("Next");
+
+        // button style 
+        Config.styleButton(backButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_SMALL);
+        Config.styleButton(nextButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_SMALL);
+
+        btnPanel.add(backButton);
+        btnPanel.add(nextButton);
 
         gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
         add(btnPanel, gbc);
         
-        // --- BUTTON ACTIONS ---
-        btnPrevious.addActionListener(e -> {
+        // --------- Button Action Listener ----------
+        backButton.addActionListener(e -> {
             new EntryExitView().setVisible(true);
             dispose();
         });
 
-        btnNext.addActionListener(e -> {
+        nextButton.addActionListener(e -> {
             String plate = txtLicense.getText();
-            String type = (String) vehicleTypeCombo.getSelectedItem();
+
+            // convert enum to string for filehandler 
+            VehicleType selectedType = (VehicleType) vehicleTypeCombo.getSelectedItem(); 
             
             boolean isHandicappedPerson = chkIsHandicapped.isSelected();
             boolean hasCard = chkHasCard.isSelected();
@@ -98,7 +107,8 @@ public class EntryPage extends JFrame {
                 return;
             }
 
-            ParkingPage parkingPage = new ParkingPage(plate, type, isHandicappedPerson, hasCard);
+            // pass enum straight to parkingPage // selectedType
+            ParkingPage parkingPage = new ParkingPage(plate, selectedType, isHandicappedPerson, hasCard);
             parkingPage.setVisible(true);
             this.setVisible(false);
         });

@@ -17,8 +17,10 @@ public class Ticket {
     private LocalDateTime exitTime;
     private long durationMinutes;
     private double parkingFeeAmount; // normal parking fee
-    private double fineAmount; // penalty fine  
-    private double totalPayAmount; // fine + parking fee
+    private double fineAmount; // overstay fine  
+    private double totalPayAmount; // fine + parking fee + debt
+
+    private double previousDebt; 
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -78,7 +80,7 @@ public class Ticket {
         );
     }
 
-    // --- GETTERS ---
+    // --- getter ---
     public String getPlate() { return plate; }
     public String getVehicleType() { return vehicleType; }
     public boolean isHandicappedPerson() { return isHandicappedPerson; }
@@ -86,7 +88,9 @@ public class Ticket {
     public String getSpotID() { return spotID; }
     public double getParkingFeeAmount () { return parkingFeeAmount; }
     public double getFineAmount () { return fineAmount; }
-    public double getPayAmount() { return totalPayAmount; }
+    public double getTotalPayAmount() { return totalPayAmount; }
+    public double getPreviousDebt () { return previousDebt; }
+
 
     public String getEntryTimeStr() { return entryTime.format(FMT); }
     public String getExitTimeStr() { return (exitTime == null) ? "-" : exitTime.format(FMT); }
@@ -106,7 +110,7 @@ public class Ticket {
         return Math.ceil(durationMinutes / 60.0) ; 
     }
     
-    // --- setter ---
+    // ------ setter ------
     public void setExitTime (){ 
         this.exitTime = LocalDateTime.now(); 
         // exit time subtract entry time --> duration 
@@ -116,10 +120,12 @@ public class Ticket {
         }
     }
 
-    public void setCost (double fee, double fine){ 
+    public void setCost (double fee, double fine, double debt){ 
         this.fineAmount = fine; 
         this.parkingFeeAmount = fee; 
-        this.totalPayAmount = fee + fine; 
+        this.previousDebt = debt;
+        this.totalPayAmount = fee + fine + debt; 
+        
     }
 
 
