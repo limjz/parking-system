@@ -1,11 +1,11 @@
 package views;
 
 import controllers.AdminController;
-import controllers.FineSchemeType; // Ensure this matches your package
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import models.AdminReport;
+import models.FineSchemeType;
 import utils.Config;
 
 public class AdminPage extends JFrame {
@@ -13,10 +13,12 @@ public class AdminPage extends JFrame {
     private final AdminController adminController = new AdminController();
 
     private final JTextArea output = new JTextArea();
-    private final JLabel statusBar = new JLabel("Ready.");
+
+    // left bottom window status msg bar
+    private final JLabel statusBar = new JLabel(" ");
 
     // Fine scheme UI
-    private final JLabel schemeLabel = new JLabel();
+    private final JLabel schemeTypeLabel = new JLabel();
     private final JComboBox<FineSchemeType> schemeBox = new JComboBox<>(FineSchemeType.values());
     private final JButton applyBtn = new JButton("Apply");
 
@@ -32,17 +34,17 @@ public class AdminPage extends JFrame {
         add(buildOutputPanel(), BorderLayout.CENTER);
         add(buildBottomBar(), BorderLayout.SOUTH);
 
-        // wire apply action once
+        //call out the FineSchemeType, use the enum there
         applyBtn.addActionListener(e -> {
             FineSchemeType selected = (FineSchemeType) schemeBox.getSelectedItem();
             if (selected == null) selected = FineSchemeType.FIXED;
 
             adminController.updateFineScheme(selected);
-            schemeLabel.setText(selected.name());
-            setStatus("fine scheme updated: " + selected.name());
+            schemeTypeLabel.setText(selected.name());
+            setStatus("Fine scheme updated: " + selected.name());
 
-            // show dummy preview
-            output.append("\n[preview] scheme changed to " + selected.name() + "\n");
+            // show dummy preview in sb 
+            output.append("\n[preview] Scheme changed to " + selected.name() + "\n");
             output.append(adminController.getFineSchemePreview());
             output.append("\n");
         });
@@ -55,7 +57,7 @@ public class AdminPage extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    // ===== HEADER =====
+    // ========== HEADER ==========
     private JPanel buildHeader() {
         JPanel header = new JPanel(new BorderLayout(10, 10));
         JLabel title = new JLabel("University Parking Lot Management System — Admin");
@@ -64,14 +66,14 @@ public class AdminPage extends JFrame {
         return header;
     }
 
-    // ===== LEFT MENU =====
+    // ========== LEFT MENU ==========
     private JPanel buildLeftMenu() {
         JPanel menu = new JPanel();
         menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
         menu.setBorder(BorderFactory.createTitledBorder("Actions"));
         menu.setPreferredSize(new Dimension(340, 0));
 
-        // ---- Fine Scheme ----
+        // -------- Fine Scheme --------
         JLabel fsLabel = new JLabel("Fine Scheme");
         fsLabel.setFont(fsLabel.getFont().deriveFont(Font.BOLD));
         fsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -83,7 +85,7 @@ public class AdminPage extends JFrame {
 
         JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         row1.add(new JLabel("Current scheme: ")); 
-        row1.add(schemeLabel);
+        row1.add(schemeTypeLabel);
 
         JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         row2.add(new JLabel("Select scheme: ")); 
@@ -105,7 +107,7 @@ public class AdminPage extends JFrame {
 
 
 
-        // ---- Parking Structure ----
+        // -------- Parking Structure --------
         JLabel psLabel = new JLabel("Parking Structure");
         psLabel.setFont(psLabel.getFont().deriveFont(Font.BOLD));
         psLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -124,7 +126,7 @@ public class AdminPage extends JFrame {
         menu.add(overviewBtn);
         menu.add(Box.createVerticalStrut(8));
 
-        // Floor Buttons
+        // -------- Floor Buttons --------
         JPanel floorsPanel = new JPanel(new GridLayout(1, 5, 8, 8));
         floorsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         floorsPanel.setPreferredSize(new Dimension(300, 42));
@@ -145,7 +147,7 @@ public class AdminPage extends JFrame {
 
 
 
-        // ---- Reports ----
+        // -------- Reports --------
         JLabel rptLabel = new JLabel("Reports");
         rptLabel.setFont(rptLabel.getFont().deriveFont(Font.BOLD));
         rptLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -162,7 +164,7 @@ public class AdminPage extends JFrame {
 
         menu.add(Box.createVerticalStrut(12));
 
-        // ---- Refresh/Clear ----
+        // -------- Refresh/Clear --------
         JPanel actionRow = new JPanel(new GridLayout(1, 2, 8, 0));
         actionRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
 
@@ -190,7 +192,7 @@ public class AdminPage extends JFrame {
         btn.setFont(btn.getFont().deriveFont(Font.BOLD, 12f));
     }
 
-    // ===== OUTPUT PANEL =====
+    // ========== OUTPUT PANEL - SB Text Area ==========
     private JPanel buildOutputPanel() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
         panel.setBorder(BorderFactory.createTitledBorder("Output"));
@@ -208,31 +210,32 @@ public class AdminPage extends JFrame {
         return panel;
     }
 
-    // ===== BOTTOM BAR =====
+    // ========== BOTTOM BAR ==========
     private JPanel buildBottomBar() {
         JPanel bottom = new JPanel(new BorderLayout(10, 0));
         bottom.setBorder(new EmptyBorder(6, 0, 0, 0));
+       
         statusBar.setBorder(new EmptyBorder(6, 8, 6, 8));
         bottom.add(statusBar, BorderLayout.CENTER);
 
-        JButton logoutBtn = new JButton("Logout");
-        logoutBtn.setPreferredSize(new Dimension(100, 30));
-        logoutBtn.addActionListener(e -> {
-            // new LoginPage().setVisible(true);
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setPreferredSize(new Dimension(100, 30));
+        logoutButton.addActionListener(e -> {
             new EntryExitView().setVisible(true);
             dispose();
         });
 
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        right.add(logoutBtn);
+        right.add(logoutButton);
         bottom.add(right, BorderLayout.EAST);
         return bottom;
     }
 
-    // ===== ACTIONS =====
+    // ========== ACTIONS ==========
+    // update status msg at the left bottom window
     private void showFloor(int floor) {
         output.setText(adminController.generateFloorView(floor));
-        setStatus("showing floor " + floor + " spot status");
+        setStatus("Showing floor " + floor + " spot status");
     }
 
     private JButton makeMenuButton(String label, Supplier<String> action) {
@@ -241,16 +244,18 @@ public class AdminPage extends JFrame {
         b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         b.addActionListener(e -> {
             output.setText(action.get());
-            setStatus("showing " + label);
+            setStatus("Showing " + label);
         });
         return b;
     }
 
+    // grab from the fine_scheme.txt again and update the label
     private void loadCurrentSchemeToUI() {
         FineSchemeType current = adminController.getFineSchemeFromFile();
-        schemeLabel.setText(current.name());
+        schemeTypeLabel.setText(current.name());
         schemeBox.setSelectedItem(current);
 
+        // load the init content in sb 
         if (output.getText().trim().isEmpty()) {
             output.setText("Welcome, Admin.\n\nFine scheme changes apply to future calculations.");
         }

@@ -4,13 +4,18 @@ import controllers.TicketController;
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
+import models.SpotType;
+import models.VehicleType;
 import utils.Config;
 import utils.FileHandler;
 
 public class ParkingPage extends JFrame {
 
     private final String plate;
-    private final String vehicleType;
+    //private final String vehicleType;
+    private final VehicleType vehicleType;
+
+
     private final boolean isHandicappedPerson; // User claimed to be handicapped
     private final boolean hasHandicappedCard;  // User has the card
     
@@ -22,7 +27,7 @@ public class ParkingPage extends JFrame {
     private final Color COL_RESERVED = new Color(255, 182, 193); 
     private final Color COL_OCCUPIED = new Color(169, 169, 169); 
 
-    public ParkingPage(String plate, String vehicleType, boolean isHandicappedPerson, boolean hasHandicappedCard) {
+    public ParkingPage(String plate, VehicleType vehicleType, boolean isHandicappedPerson, boolean hasHandicappedCard) {
         this.plate = plate;
         this.vehicleType = vehicleType;
         this.isHandicappedPerson = isHandicappedPerson;
@@ -44,13 +49,14 @@ public class ParkingPage extends JFrame {
         add(tabbedPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton btnBack = new JButton("Back to Entry");
-        btnBack.setPreferredSize(new Dimension(150, 30));
-        btnBack.addActionListener(e -> {
+        JButton backButton = new JButton("Back to Entry");
+        // backButton.setPreferredSize(new Dimension(150, 30));
+        Config.styleButton(backButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
+        backButton.addActionListener(e -> {
             new EntryPage().setVisible(true);
             dispose();
         });
-        buttonPanel.add(btnBack);
+        buttonPanel.add(backButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -60,6 +66,7 @@ public class ParkingPage extends JFrame {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         panel.setBorder(BorderFactory.createTitledBorder("Spot Types & Hourly Rates"));
         panel.setBackground(Color.WHITE);
+
         panel.add(createLegendItem("Compact (RM 2/hr)", COL_COMPACT));
         panel.add(createLegendItem("Regular (RM 5/hr)", COL_REGULAR));
         panel.add(createLegendItem("Handicapped (RM 2/hr)", COL_HANDICAP));
@@ -96,7 +103,7 @@ public class ParkingPage extends JFrame {
                 if (parts.length < 3) continue;
 
                 String spotID = parts[0];     
-                String spotType = parts[1];       
+                SpotType spotType = SpotType.fromString(parts[1]);       
                 boolean isOccupied = Boolean.parseBoolean(parts[2]);
                 String currentPlate = (parts.length > 3) ? parts[3] : "null";
                 boolean spotHasHandicap = (parts.length > 4) && Boolean.parseBoolean(parts[4]);
@@ -104,11 +111,11 @@ public class ParkingPage extends JFrame {
                 JButton spotButton = new JButton("<html><center>" + spotID + "<br/>(" + spotType + ")</center></html>");
                 
                 switch (spotType) {
-                    case "Compact": spotButton.setBackground(COL_COMPACT); break;
-                    case "Regular": spotButton.setBackground(COL_REGULAR); break;
-                    case "Handicapped": spotButton.setBackground(COL_HANDICAP); break;
-                    case "Reserved": spotButton.setBackground(COL_RESERVED); break;
-                    default: spotButton.setBackground(Color.LIGHT_GRAY);
+                    case COMPACT -> spotButton.setBackground(COL_COMPACT);
+                    case REGULAR -> spotButton.setBackground(COL_REGULAR);
+                    case HANDICAPPED -> spotButton.setBackground(COL_HANDICAP);
+                    case RESERVED -> spotButton.setBackground(COL_RESERVED);
+                    default ->  spotButton.setBackground(Color.LIGHT_GRAY);
                 }
 
                 if (isOccupied) {
@@ -121,42 +128,44 @@ public class ParkingPage extends JFrame {
                 } else {
                     spotButton.addActionListener(e -> {
                         
-                        // --- RESTRICTION LOGIC ---
+                        // ------ Spot restriction logic ------
                         
-                        // 1. Check: Non-Handicapped people cannot use Handicapped spots
-                        if (!this.isHandicappedPerson && spotType.equalsIgnoreCase("Handicapped")) {
+                        // Non-Handicapped people cannot use Handicapped spots
+                        if (!this.isHandicappedPerson && spotType == SpotType.HANDICAPPED) {
                              JOptionPane.showMessageDialog(this, 
                                 "Restriction: Only Handicapped vehicles can park here.", 
                                 "Invalid Selection", 
                                 JOptionPane.WARNING_MESSAGE);
                             return;
                         }
-                        // 2. If User is NOT Handicapped -> CANNOT use Handicapped Spot
-                        if (!spotType.equalsIgnoreCase("Reserved") && !spotType.equalsIgnoreCase("Handicapped")) {
+                        
+                        // check for non-special spot if the car fits the spot 
+                        if (spotType != SpotType.RESERVED && spotType != SpotType.HANDICAPPED) {
                             boolean sizeFit = false;
                             
                             switch (this.vehicleType) {
 
-                                // Motorcycle can only park in Compact
-                                case "Motorcycle": 
-                                    if (spotType.equalsIgnoreCase("Compact")) {
+                                // Motorcycle: Compact ONLY
+                                case MOTORCYCLE -> {
+                                    if (spotType == SpotType.COMPACT) {
                                         sizeFit = true; 
                                     }
-                                    break;
-                            
-                                // Car: Compact or Regular
-                                case "Car": 
-                                    if (spotType.equalsIgnoreCase("Compact") || spotType.equalsIgnoreCase("Regular")) {
-                                        sizeFit = true; 
-                                    }
-                                    break;
+                                }
 
-                                // SUV: Regular ONLY
-                                case "SUV/Truck": 
-                                    if (spotType.equalsIgnoreCase("Regular")) {
+                                // Car: Compact or Regular
+                                case CAR -> {
+                                    if (spotType == SpotType.COMPACT || spotType == SpotType.REGULAR) {
                                         sizeFit = true; 
                                     }
-                                    break;
+                                }
+                                    
+                                // SUV: Regular ONLY
+                                case SUV ->{ 
+                                    if (spotType == SpotType.REGULAR) {
+                                        sizeFit = true; 
+                                    }
+                                }
+                                    
                             }
 
                             if (!sizeFit) {
@@ -168,8 +177,8 @@ public class ParkingPage extends JFrame {
                             }
                         }
 
-                        // 3. VIP Check
-                        if (spotType.equalsIgnoreCase("Reserved")) {
+                        // VIP reserved check
+                        if (spotType == SpotType.RESERVED) {
                             if (!ticketController.isVip(this.plate)) {
                                 JOptionPane.showMessageDialog(this, "Access Denied: Not a VIP.", "Restricted Access", JOptionPane.ERROR_MESSAGE);
                                 return;

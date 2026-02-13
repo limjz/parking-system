@@ -5,6 +5,7 @@ import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.swing.*;
+import models.VehicleType;
 import utils.Config;
 
 public class ConfirmationPage extends JFrame {
@@ -12,7 +13,7 @@ public class ConfirmationPage extends JFrame {
     private TicketController controller = new TicketController();
 
     // Constructor updated to take both booleans
-    public ConfirmationPage(String plate, String type, boolean isHandicappedPerson, boolean hasCard, String spotID) {
+    public ConfirmationPage(String plate, VehicleType type, boolean isHandicappedPerson, boolean hasCard, String spotID) {
         setTitle("Confirm Ticket Details");
         setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
         setLocationRelativeTo(null);
@@ -31,7 +32,7 @@ public class ConfirmationPage extends JFrame {
         detailsPanel.add(new JLabel(plate));
 
         detailsPanel.add(new JLabel("Vehicle Type:"));
-        detailsPanel.add(new JLabel(type));
+        detailsPanel.add(new JLabel(type.toString()));
 
         detailsPanel.add(new JLabel("Is Handicapped:"));
         detailsPanel.add(new JLabel(isHandicappedPerson ? "Yes" : "No"));
@@ -68,7 +69,7 @@ public class ConfirmationPage extends JFrame {
 
         btnConfirm.addActionListener(e -> {
             // Save using hasCard status (as requested for DB)
-            boolean success = controller.generateTicket(plate, type, isHandicappedPerson, hasCard, spotID);
+            boolean success = controller.generateTicket(plate, type.toString(), isHandicappedPerson, hasCard, spotID);
 
             if (success) {
                 JOptionPane.showMessageDialog(this, "Ticket Generated Successfully!\nPlate: " + plate + "\nSpot: " + spotID);

@@ -1,1 +1,1 @@
-HOURLY
+FIXED

@@ -3,6 +3,8 @@ package controllers;
 import fine.*;
 import java.util.ArrayList;
 import java.util.List;
+import models.FineSchemeType;
+import models.SpotType;
 import models.Ticket;
 import utils.Config;
 import utils.FileHandler;
@@ -109,7 +111,7 @@ public class TicketController {
         String filename = Config.PARKINGSPOT_BASE_FILE + floorPrefix + ".txt"; // target to specific floor 
         List <String> lines = FileHandler.readAllLines(filename);
 
-        String spotType = "Regular"; 
+        String spotTypeStr = "Regular"; 
 
         for (String line : lines){ 
             // check if the db is start from spotID (F1-R1-S1)
@@ -117,29 +119,25 @@ public class TicketController {
             { 
                 String [] p = line.split(Config.DELIMITER_READ); 
                 
-                if (p.length > 1) 
-                { 
-                    spotType = p[1]; // second object is the type 
+                if (p.length > 1) { 
+                    spotTypeStr = p[1]; // second object is the type // Regular, Compact,...
                     break; 
                 }
             }
         }
 
+
+        SpotType currentSpot = SpotType.fromString(spotTypeStr);
+
         if (hasHandicapedCard) {
-            if (spotType.equalsIgnoreCase("Handicapped")) {
-                return 0.0; // Free if parked in designated handicapped spot
+            if (currentSpot == SpotType.HANDICAPPED) {
+                return 0.0; // Free if got card and parked in handicapped spot
             } else {
                 return 2.0; // Flat RM 2.00 if parked anywhere else
             }
         }
 
-        return switch (spotType) { 
-            case "Compact" -> 2.0;
-            case "Regular" -> 5.0;
-            case "Handicapped" -> 2.0; // Fallback rate (though logic restricts this)
-            case "Reserved" -> 10.0;
-            default -> 5.0;
-        };
+        return currentSpot.getRate();
 
     }
 
