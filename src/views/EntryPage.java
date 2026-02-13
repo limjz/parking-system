@@ -8,7 +8,7 @@ public class EntryPage extends JFrame {
 
     public EntryPage() {
         super("Entry Terminal");
-        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT/2);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
 
@@ -72,21 +72,26 @@ public class EntryPage extends JFrame {
 
         // Row 4: Buttons
         JPanel btnPanel = new JPanel();
-        JButton btnPrevious = new JButton("Previous");
-        JButton btnNext = new JButton("Next");
-        btnPanel.add(btnPrevious);
-        btnPanel.add(btnNext);
+        JButton backButton = new JButton("Back");
+        JButton nextButton = new JButton("Next");
+
+        // button style 
+        Config.styleButton(backButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_SMALL);
+        Config.styleButton(nextButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_SMALL);
+
+        btnPanel.add(backButton);
+        btnPanel.add(nextButton);
 
         gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
         add(btnPanel, gbc);
         
         // --- BUTTON ACTIONS ---
-        btnPrevious.addActionListener(e -> {
+        backButton.addActionListener(e -> {
             new EntryExitView().setVisible(true);
             dispose();
         });
 
-        btnNext.addActionListener(e -> {
+        nextButton.addActionListener(e -> {
             String plate = txtLicense.getText();
             String type = (String) vehicleTypeCombo.getSelectedItem();
             

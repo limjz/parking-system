@@ -11,6 +11,8 @@ import utils.FileHandler;
 public class TicketController {
 
     private final FineController fineController = new FineController ();
+    private final DebtController debtController = new DebtController ();
+
 
     public List<Ticket> getAllTickets() {
         List<String> lines = FileHandler.readAllLines(Config.TICKET_FILE);
@@ -56,6 +58,7 @@ public class TicketController {
 
         double fine = 0.0; //init fine equals to zero
 
+        // overstay fine calculate
         if (hours > 24){ 
             FineSchemeType currentScheme = fineController.getCurrentScheme(); 
             FineStrategy strategy = fineController.createStrategy(currentScheme);
@@ -63,7 +66,11 @@ public class TicketController {
 
         }
 
-        ticket.setCost(standardFee, fine);
+        // check if got debt in outstanding_fines.txt
+        double oldDebt = debtController.getDebtAmount(ticket.getPlate()); 
+
+        // sum up all the payment amount
+        ticket.setCost(standardFee, fine, oldDebt);
 
     }
 
@@ -118,14 +125,13 @@ public class TicketController {
             }
         }
 
-        if (hasHandicapedCard && spotType.equalsIgnoreCase("Handicapped")){ 
-            return 0;  // handicap driver park at handicapped spot no charge 
+        if (hasHandicapedCard) {
+            if (spotType.equalsIgnoreCase("Handicapped")) {
+                return 0.0; // Free if parked in designated handicapped spot
+            } else {
+                return 2.0; // Flat RM 2.00 if parked anywhere else
+            }
         }
-         
-        // if (hasHandicapedCard)
-        // { 
-        //     return 2.0; // handicap driver flat rate RM2 at all parking 
-        // }
 
         return switch (spotType) { 
             case "Compact" -> 2.0;

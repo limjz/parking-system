@@ -60,6 +60,10 @@ public class TicketView extends JFrame {
         // --- BOTTOM ---
         JPanel btnPanel = new JPanel();
         JButton btnBack = new JButton("Back to Main Menu");
+
+        Config.styleButton(btnBack, Config.COLOR_PRIMARY, Config.BTN_SIZE_MEDIUM);
+
+        //  -------------- Action Listener -----------------
         btnBack.addActionListener(e -> {
             new EntryExitView().setVisible(true);
             dispose();

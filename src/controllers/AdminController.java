@@ -1,8 +1,11 @@
 package controllers;
 
 import fine.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import models.AdminReport;
+import models.Debt;
 import models.ParkingLayout; // Uses the new AdminReport model
 import models.Ticket;
 
@@ -11,15 +14,16 @@ public class AdminController {
     private final LoginController loginController = new LoginController();
     private final FineController fineController = new FineController(); 
     private final TicketController ticketController = new TicketController(); 
+    private final DebtController debtController = new DebtController();
     private final FineContext fineContext;
     private final ParkingLayout layout; // Replaces ParkingStructureConfig
 
     public AdminController() {
 
-        // 1. Initialize Layout (5 Floors, 20 Spots/Floor, 4 Rows, 5 Spots/Row)
+        //  Initialize Layout (5 Floors, 20 Spots per floor, 4 Rows, 5 Spots per row)
         this.layout = new ParkingLayout(5, 20, 4, 5);
 
-        // 2. Load Fine Scheme
+        // Load Fine Scheme
         FineSchemeType scheme = fineController.getCurrentScheme();
         this.fineContext = new FineContext(fineController.createStrategy(scheme));
     }
@@ -56,12 +60,12 @@ public class AdminController {
             case OCCUPANCY_RATE -> reportOccupancy();
             case REVENUE -> reportRevenue();
             case CURRENT_VEHICLES -> reportCurrentVehicles();
-            case UNPAID_FINES -> "Feature available in database mode only.";
+            case UNPAID_FINES -> reportUnpaidFines();
             case PARKING_STRUCTURE -> generateAllFloorsOverview();
         };
     }
 
-    // 1. Occupancy Report
+    // Occupancy Report
     private String reportOccupancy() {
         long parked = ticketController.getAllTickets().stream().filter(t -> t.getExitTimeStr().equals("-")).count();
         int totalSpots = layout.getTotalSpots();
@@ -71,11 +75,11 @@ public class AdminController {
 
     // 2. Revenue Report
     private String reportRevenue() {
-        double sum = ticketController.getAllTickets().stream().mapToDouble(Ticket::getPayAmount).sum();
+        double sum = ticketController.getAllTickets().stream().mapToDouble(Ticket::getTotalPayAmount).sum();
         return "Total Revenue: RM " + String.format("%.2f", sum);
     }
 
-    // 3. Current Vehicles Report
+    //  Current Vehicles Report
     private String reportCurrentVehicles() {
         StringBuilder sb = new StringBuilder("=== CURRENT VEHICLES ===\n");
         List<Ticket> tickets = ticketController.getAllTickets();
@@ -93,7 +97,33 @@ public class AdminController {
         return sb.toString();
     }
 
-    // 4. Floor View (e.g., F1)
+
+    private String reportUnpaidFines (){ 
+        List<Debt> allDebts = debtController.getAllDebts(); 
+
+        if (allDebts.isEmpty()) {
+            return "No outstanding fines found.";
+        }
+
+        StringBuilder sb = new StringBuilder("=== OUTSTANDING FINES REPORT ===\n\n");
+        sb.append(String.format("%-15s | %-10s\n", "License Plate", "Amount"));
+        sb.append("-----------------------------\n");
+
+        double totalDebt = 0.0;
+
+        // 3. Loop through the Debt objects
+        for (Debt d : allDebts) {
+            sb.append(String.format("%-15s | RM %7.2f\n", d.getPlate(), d.getDebtAmount()));
+            totalDebt += d.getDebtAmount();
+        }
+
+        sb.append("-----------------------------\n");
+        sb.append(String.format("TOTAL OUTSTANDING: RM %.2f", totalDebt));
+        
+        return sb.toString();
+    }
+
+    // Floor View (e.g., F1)
     public String generateFloorView(int floorNumber) {
         StringBuilder sb = new StringBuilder();
         sb.append("=== FLOOR ").append(floorNumber).append(" VIEW ===\n");

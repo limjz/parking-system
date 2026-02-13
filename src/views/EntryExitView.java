@@ -12,7 +12,7 @@ public class EntryExitView extends JFrame {
         super("Customer Portal");
         //this.controller = new EntryExitController();
 
-        setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+        setSize(Config.WINDOW_WIDTH/2, Config.WINDOW_HEIGHT/2);
         setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -24,22 +24,26 @@ public class EntryExitView extends JFrame {
 
         // ---------------- Button ------------------
         JButton EntryButton = new JButton("Entry");
-        EntryButton.setPreferredSize(btnSize);
+        Config.styleButton(EntryButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
+        // EntryButton.setPreferredSize(btnSize);
         gbc.gridy = 1;
         panel.add(EntryButton, gbc);
 
         JButton ExitButton = new JButton("Exit");
-        ExitButton.setPreferredSize(btnSize);
+        Config.styleButton(ExitButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
+        //ExitButton.setPreferredSize(btnSize);
         gbc.gridy = 2;
         panel.add(ExitButton, gbc);
 
         JButton TicketButton = new JButton("View Ticket");
-        TicketButton.setPreferredSize(btnSize);
+        Config.styleButton(TicketButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
+        // TicketButton.setPreferredSize(btnSize);
         gbc.gridy = 3;
         panel.add(TicketButton, gbc);
 
         JButton adminLoginButton = new JButton("Admin Login"); 
-        adminLoginButton.setPreferredSize(btnSize);
+        Config.styleButton(adminLoginButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
+        // adminLoginButton.setPreferredSize(btnSize);
         gbc.gridy = 4;
         panel.add(adminLoginButton, gbc);
 

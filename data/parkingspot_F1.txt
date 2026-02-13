@@ -1,6 +1,6 @@
 F1-R1-S1|Handicapped|false|null|false
 F1-R1-S2|Handicapped|false|null|false
-F1-R1-S3|Handicapped|true|gdg|false
+F1-R1-S3|Handicapped|false|null|false
 F1-R1-S4|Handicapped|false|null|false
 F1-R1-S5|Handicapped|false|null|false
 F1-R2-S1|Reserved|false|null|false

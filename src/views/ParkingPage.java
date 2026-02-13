@@ -9,12 +9,12 @@ import utils.FileHandler;
 
 public class ParkingPage extends JFrame {
 
-    private String plate;
-    private String vehicleType;
-    private boolean isHandicappedPerson; // User claimed to be handicapped
-    private boolean hasHandicappedCard;  // User has the card
+    private final String plate;
+    private final String vehicleType;
+    private final boolean isHandicappedPerson; // User claimed to be handicapped
+    private final boolean hasHandicappedCard;  // User has the card
     
-    private TicketController controller = new TicketController();
+    private final TicketController ticketController = new TicketController();
 
     private final Color COL_COMPACT = new Color(173, 216, 230); 
     private final Color COL_REGULAR = new Color(144, 238, 144); 
@@ -123,44 +123,54 @@ public class ParkingPage extends JFrame {
                         
                         // --- RESTRICTION LOGIC ---
                         
-                        // 1. If User Is Handicapped -> MUST use Handicapped Spot
-                        if (this.isHandicappedPerson) {
-                            if (!spotType.equalsIgnoreCase("Handicapped")) {
-                                JOptionPane.showMessageDialog(this, 
-                                    "Restriction: Handicapped vehicles can ONLY park in Handicapped spots.", 
-                                    "Invalid Selection", 
-                                    JOptionPane.WARNING_MESSAGE);
-                                return;
-                            }
-                        } 
+                        // 1. Check: Non-Handicapped people cannot use Handicapped spots
+                        if (!this.isHandicappedPerson && spotType.equalsIgnoreCase("Handicapped")) {
+                             JOptionPane.showMessageDialog(this, 
+                                "Restriction: Only Handicapped vehicles can park here.", 
+                                "Invalid Selection", 
+                                JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
                         // 2. If User is NOT Handicapped -> CANNOT use Handicapped Spot
-                        else {
-                            if (spotType.equalsIgnoreCase("Handicapped")) {
+                        if (!spotType.equalsIgnoreCase("Reserved") && !spotType.equalsIgnoreCase("Handicapped")) {
+                            boolean sizeFit = false;
+                            
+                            switch (this.vehicleType) {
+
+                                // Motorcycle can only park in Compact
+                                case "Motorcycle": 
+                                    if (spotType.equalsIgnoreCase("Compact")) {
+                                        sizeFit = true; 
+                                    }
+                                    break;
+                            
+                                // Car: Compact or Regular
+                                case "Car": 
+                                    if (spotType.equalsIgnoreCase("Compact") || spotType.equalsIgnoreCase("Regular")) {
+                                        sizeFit = true; 
+                                    }
+                                    break;
+
+                                // SUV: Regular ONLY
+                                case "SUV/Truck": 
+                                    if (spotType.equalsIgnoreCase("Regular")) {
+                                        sizeFit = true; 
+                                    }
+                                    break;
+                            }
+
+                            if (!sizeFit) {
                                 JOptionPane.showMessageDialog(this, 
-                                    "Restriction: Only Handicapped vehicles can park here.", 
+                                    "Vehicle Mismatch: " + vehicleType + " cannot fit in " + spotType, 
                                     "Invalid Selection", 
                                     JOptionPane.WARNING_MESSAGE);
                                 return;
                             }
                         }
 
-                        // 3. Size Compatibility (Only applies if they are not forced into HC spots)
-                        if (!this.isHandicappedPerson && !spotType.equalsIgnoreCase("Reserved")) {
-                            boolean sizeFit = false;
-                            switch (this.vehicleType) {
-                                case "Motorcycle": if (spotType.equalsIgnoreCase("Compact")) sizeFit = true; break;
-                                case "Car": if (spotType.equalsIgnoreCase("Compact") || spotType.equalsIgnoreCase("Regular")) sizeFit = true; break;
-                                case "SUV/Truck": if (spotType.equalsIgnoreCase("Regular")) sizeFit = true; break;
-                            }
-                            if (!sizeFit) {
-                                JOptionPane.showMessageDialog(this, "Vehicle Mismatch: " + vehicleType + " cannot fit in " + spotType, "Invalid Selection", JOptionPane.WARNING_MESSAGE);
-                                return;
-                            }
-                        }
-
-                        // 4. VIP Check
+                        // 3. VIP Check
                         if (spotType.equalsIgnoreCase("Reserved")) {
-                            if (!controller.isVip(this.plate)) {
+                            if (!ticketController.isVip(this.plate)) {
                                 JOptionPane.showMessageDialog(this, "Access Denied: Not a VIP.", "Restricted Access", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
