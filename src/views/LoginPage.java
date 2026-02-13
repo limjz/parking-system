@@ -3,6 +3,7 @@ package views;
 import controllers.AdminController;
 import java.awt.*;
 import javax.swing.*;
+import utils.Config;
 
 public class LoginPage extends JFrame {
 
@@ -41,8 +42,13 @@ public class LoginPage extends JFrame {
 
         // --------------- Buttons --------------- 
         loginButton = new JButton("Login");
-        resetButton = new JButton("Reset Login");
+        resetButton = new JButton("Reset");
         backButton = new JButton("Back"); 
+
+        // button style
+        Config.styleButton(loginButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_MINI);
+        Config.styleButton(resetButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_MINI);
+        Config.styleButton(backButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_MINI);
 
         resetButton.setEnabled(false); // disabled by default
 

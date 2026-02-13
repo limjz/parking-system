@@ -1,5 +1,6 @@
 package views;
 
+import controllers.DebtController;
 import controllers.TicketController;
 import java.awt.*;
 import javax.swing.*;
@@ -8,7 +9,9 @@ import utils.Config;
 
 public class PaymentPage extends JFrame {
 
-    private TicketController controller = new TicketController();
+    private TicketController ticketController = new TicketController();
+    private DebtController debtController = new DebtController(); 
+
 
     public PaymentPage(Ticket ticket) {
         setTitle("Payment Counter");
@@ -27,6 +30,7 @@ public class PaymentPage extends JFrame {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
+
         // 1. Vehicle Info (Read directly from the Ticket Object)
         addInfoLabel(mainPanel, "License Plate: " + ticket.getPlate());
         addInfoLabel(mainPanel, "Entry Time: " + ticket.getEntryTimeStr()); 
@@ -35,11 +39,12 @@ public class PaymentPage extends JFrame {
         
         mainPanel.add(Box.createVerticalStrut(15));
         
-        // 2. Fees & Fines (Formatted to 2 decimal places)
+        // ------ parking fee ------
         addInfoLabel(mainPanel, String.format("Parking Fees: RM %.2f", ticket.getParkingFeeAmount()));
         mainPanel.add(Box.createVerticalStrut(5));
 
         // Highlight Fine in RED if it exists
+        // ------ fine ------ 
         JLabel lblFine = new JLabel(String.format("Fines: RM %.2f", ticket.getFineAmount()));
         lblFine.setFont(new Font("Arial", Font.PLAIN, 14));
         lblFine.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -50,8 +55,17 @@ public class PaymentPage extends JFrame {
         mainPanel.add(lblFine);
         mainPanel.add(Box.createVerticalStrut(10));
 
-        // Total
-        JLabel lblTotal = new JLabel(String.format("Total Amount: RM %.2f", ticket.getPayAmount()));
+
+        if (ticket.getPreviousDebt() > 0) {
+            JLabel lblDebt = new JLabel(String.format("Outstanding Debt: RM %.2f", ticket.getPreviousDebt()));
+            lblDebt.setForeground(Color.RED);
+            lblDebt.setFont(new Font("Arial", Font.BOLD, 14));
+            mainPanel.add(lblDebt);
+        }
+
+
+        // ------ pay total  ------
+        JLabel lblTotal = new JLabel(String.format("Total Amount: RM %.2f", ticket.getTotalPayAmount()));
         lblTotal.setFont(new Font("Arial", Font.BOLD, 18));
         lblTotal.setForeground(new Color(0, 100, 0)); // Dark Green
         lblTotal.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -78,39 +92,42 @@ public class PaymentPage extends JFrame {
         add(mainPanel, BorderLayout.CENTER);
 
         // --- BOTTOM: BUTTONS ---
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton btnCancel = new JButton("Cancel");
-        JButton btnPay = new JButton("Confirm Payment & Exit");
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
+        btnPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 0)); // Add padding at bottom
 
-        btnPanel.add(btnCancel);
-        btnPanel.add(btnPay);
+        JButton cancelButton = new JButton("Cancel");
+        JButton payFeeOnlyButton = new JButton("Pay Fee Only");
+        JButton payAllButton = new JButton("Pay Full Amount");
+
+        // button style
+        Config.styleButton(cancelButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
+        Config.styleButton(payFeeOnlyButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
+        Config.styleButton(payAllButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
+        
+        //no overstay fine and no outstanding debt
+        if (ticket.getFineAmount() == 0 && ticket.getPreviousDebt() == 0)
+        { 
+            payFeeOnlyButton.setEnabled(false);
+        }
+
+        btnPanel.add(cancelButton);
+        btnPanel.add(payFeeOnlyButton);
+        btnPanel.add(payAllButton);
         add(btnPanel, BorderLayout.SOUTH);
 
         // --- ACTIONS ---
-        btnCancel.addActionListener(e -> {
-            // Logic: If they cancel, we DO NOT save the exit time.
-            // We go back, and the car stays "Parked".
+        cancelButton.addActionListener(e -> {
+  
             new ExitPage().setVisible(true);
             dispose();
         });
 
-        btnPay.addActionListener(e -> {
-            int choice = JOptionPane.showConfirmDialog(this, 
-                "Confirm Payment of RM " + String.format("%.2f", ticket.getPayAmount()) + "?", 
-                "Process Payment", JOptionPane.YES_NO_OPTION);
-            
-            if (choice == JOptionPane.YES_OPTION) {
-                // NOW we save to the database!
-                boolean success = controller.completeExit(ticket);
+        payFeeOnlyButton.addActionListener(e -> {
+            processPayment(ticket, false);
+        });
 
-                if (success) {
-                    JOptionPane.showMessageDialog(this, "Payment Successful!\nReceipt Generated.\nGate Opening...");
-                    new EntryExitView().setVisible(true);
-                    dispose();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Error processing exit (File Write Error).");
-                }
-            }
+        payAllButton.addActionListener(e-> { 
+            processPayment(ticket, true);
         });
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -122,5 +139,43 @@ public class PaymentPage extends JFrame {
         lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lbl);
         panel.add(Box.createVerticalStrut(5));
+    }
+
+
+    private void processPayment (Ticket ticket, boolean isFullPayment){ 
+
+        // if fullpayment: parking fee + fines + debt 
+        // else: only parking fee
+        double amountToPay = isFullPayment ? ticket.getTotalPayAmount() : ticket.getParkingFeeAmount(); 
+
+        int choice = JOptionPane.showConfirmDialog(this, 
+            "Confirm Payment of RM " + String.format("%.2f", amountToPay) + "?", 
+                "Process Payment", JOptionPane.YES_NO_OPTION);
+        
+        if (choice == JOptionPane.YES_OPTION){ 
+
+            // save exit time to db 
+            boolean success = ticketController.completeExit(ticket);
+            if (success){ 
+                if(isFullPayment){ 
+                    // paid everything 
+                    if (ticket.getPreviousDebt() > 0){ 
+                        debtController.clearDebt(ticket.getPlate());
+                    }
+                }
+                else { 
+                    // pay parking fee only
+                    double newDebt = ticket.getFineAmount(); 
+                    if (newDebt > 0){ 
+                        debtController.addDebt(ticket.getPlate(), newDebt);
+                    } 
+                }
+            JOptionPane.showMessageDialog(this, "Payment Successful!\n");
+                new EntryExitView().setVisible(true);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error writing to file.");
+            }
+        }
     }
 }

@@ -48,21 +48,25 @@ public class ExitPage extends JFrame {
 
         // Buttons
         JPanel btnPanel = new JPanel();
-        JButton btnBack = new JButton("Back");
-        JButton btnNext = new JButton("Proceed to Payment");
-        btnPanel.add(btnBack);
-        btnPanel.add(btnNext);
+        JButton backButton = new JButton("Back");
+        JButton nexButton = new JButton("Proceed to Payment");
+
+        Config.styleButton(backButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_SMALL);
+        Config.styleButton(nexButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_SMALL);
+        
+        btnPanel.add(backButton);
+        btnPanel.add(nexButton);
 
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
         add(btnPanel, gbc);
 
         // --- ACTIONS ---
-        btnBack.addActionListener(e -> {
+        backButton.addActionListener(e -> {
             new EntryExitView().setVisible(true);
             dispose();
         });
 
-        btnNext.addActionListener(e -> {
+        nexButton.addActionListener(e -> {
             Ticket selected = (Ticket) vehicleCombo.getSelectedItem();
             if (selected == null) {
                 JOptionPane.showMessageDialog(this, "Please select a vehicle.");
