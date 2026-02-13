@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import models.AdminReport;
 import models.Debt;
+import models.FineSchemeType;
 import models.ParkingLayout; // Uses the new AdminReport model
 import models.Ticket;
 
@@ -28,19 +29,19 @@ public class AdminController {
         this.fineContext = new FineContext(fineController.createStrategy(scheme));
     }
 
-    // --- LOGIN ---
+    // ------ LOGIN ------
     public boolean isLogin(String user, String pass) {
         return loginController.authenticateAdmin(user, pass);
     }
 
-    // --- FINE SCHEME ---
+    // ------ FINE SCHEME ------
     public FineSchemeType getFineSchemeFromFile() {
         return fineController.getCurrentScheme();
     }
 
     public void updateFineScheme(FineSchemeType scheme) {
         fineContext.setStrategy(fineController.createStrategy(scheme));
-        fineController.saveScheme(scheme);;
+        fineController.saveScheme(scheme);
     }
 
     // Preview for Admin Page
