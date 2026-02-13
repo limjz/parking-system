@@ -1,9 +1,8 @@
 package views;
 
 import controllers.AdminController;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class LoginPage extends JFrame {
 
@@ -11,22 +10,22 @@ public class LoginPage extends JFrame {
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton resetButton;
+    private final JButton backButton;
 
     private int attemptsLeft = 3;
 
     public LoginPage() {
         setTitle("Login - Parking System");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(420, 260);
-        setLocationRelativeTo(null);
+
         setLayout(new BorderLayout(10, 10));
 
-        // Title 
+        //--------------- Title ---------------
         JLabel title = new JLabel("Admin Login", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 16));
         add(title, BorderLayout.NORTH);
 
-        // Form 
+        // --------------- Form ---------------
         JPanel form = new JPanel(new GridLayout(2, 2, 10, 10));
         form.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
@@ -40,27 +39,37 @@ public class LoginPage extends JFrame {
 
         add(form, BorderLayout.CENTER);
 
-        // Buttons 
+        // --------------- Buttons --------------- 
         loginButton = new JButton("Login");
         resetButton = new JButton("Reset Login");
+        backButton = new JButton("Back"); 
 
         resetButton.setEnabled(false); // disabled by default
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(backButton);
         buttonPanel.add(loginButton);
         buttonPanel.add(resetButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Actions
+        //--------------- Actions Listeners ---------------
+        backButton.addActionListener(e -> backToUserPage());
         loginButton.addActionListener(e -> handleLogin());
-
         resetButton.addActionListener(e -> resetLogin());
 
         // Press Enter to login
         getRootPane().setDefaultButton(loginButton);
 
-        setVisible(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+    }
+
+    private void backToUserPage (){ 
+
+        dispose();
+        EntryExitView eev = new EntryExitView(); 
+        eev.setVisible(true);
     }
 
     private void handleLogin() {
@@ -79,7 +88,7 @@ public class LoginPage extends JFrame {
 
         AdminController adminController = new AdminController();
 
-        if (adminController.login(username, password)) {
+        if (adminController.isLogin(username, password)) {
             // Successful login
             new AdminPage();
             dispose();
@@ -133,4 +142,6 @@ public class LoginPage extends JFrame {
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
+
+
 }

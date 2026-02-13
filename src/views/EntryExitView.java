@@ -22,7 +22,7 @@ public class EntryExitView extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         Dimension btnSize = new Dimension(175, 25);
 
-        // Buttons
+        // ---------------- Button ------------------
         JButton EntryButton = new JButton("Entry");
         EntryButton.setPreferredSize(btnSize);
         gbc.gridy = 1;
@@ -38,7 +38,12 @@ public class EntryExitView extends JFrame {
         gbc.gridy = 3;
         panel.add(TicketButton, gbc);
 
-        // Action Listeners
+        JButton adminLoginButton = new JButton("Admin Login"); 
+        adminLoginButton.setPreferredSize(btnSize);
+        gbc.gridy = 4;
+        panel.add(adminLoginButton, gbc);
+
+        // ------------ Action Listeners ------------------
         EntryButton.addActionListener(e -> {
             EntryPage entryPage = new EntryPage();
             entryPage.setVisible(true);
@@ -52,6 +57,11 @@ public class EntryExitView extends JFrame {
 
         TicketButton.addActionListener(e -> {
             new TicketView().setVisible(true); 
+            this.setVisible(false);
+        });
+
+        adminLoginButton.addActionListener(e-> {
+            new LoginPage().setVisible(true);
             this.setVisible(false);
         });
 

@@ -1,11 +1,11 @@
 package views;
 
+import controllers.TicketController;
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 import models.Ticket;
 import utils.Config;
-import utils.FileHandler;
 
 public class TicketView extends JFrame {
 
@@ -71,32 +71,6 @@ public class TicketView extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    private void loadTickets() {
-        List<String> lines = FileHandler.readAllLines(Config.TICKET_file);
-        
-        for (String line : lines) {
-            try {
-                String[] parts = line.split(Config.DELIMITER_READ);
-                
-                if (parts.length < 6) continue; 
-
-                String plate = parts[0];
-                String type = parts[1];
-                boolean isPerson = Boolean.parseBoolean(parts[2]);
-                boolean hasCard = Boolean.parseBoolean(parts[3]);
-                String spot = parts[4];
-                String time = parts[5];
-                String exit = (parts.length > 6) ? parts[6] : null;
-                String dur = (parts.length > 7) ? parts[7] : null;
-
-                Ticket t = new Ticket(plate, type, isPerson, hasCard, spot, time, exit, dur);
-                vehicleCombo.addItem(t);
-                
-            } catch (Exception e) {
-                System.out.println("Skipping invalid line: " + line);
-            }
-        }
-    }
 
     private void displayTicketDetails() {
         Ticket selected = (Ticket) vehicleCombo.getSelectedItem();
@@ -114,6 +88,17 @@ public class TicketView extends JFrame {
             lblEntry.setText(selected.getEntryTimeStr());
             lblExit.setText(selected.getExitTimeStr());
             lblDuration.setText(selected.getDurationStr());
+        }
+    }
+
+
+    private void loadTickets () { 
+        TicketController tc = new TicketController(); 
+        List<Ticket> allTickets = tc.getAllTickets(); 
+
+        for (Ticket t : allTickets)
+        { 
+            vehicleCombo.addItem(t);
         }
     }
 }

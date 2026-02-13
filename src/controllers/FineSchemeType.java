@@ -5,6 +5,7 @@ public enum FineSchemeType {
     HOURLY,
     PROGRESSIVE;
 
+    // encapsulation, this fromString function only can be use by the fineSchemeType not other class
     public static FineSchemeType fromString(String s) {
         if (s == null) return FIXED;
         try {
