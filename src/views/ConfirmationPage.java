@@ -10,7 +10,7 @@ import utils.Config;
 
 public class ConfirmationPage extends JFrame {
 
-    private TicketController controller = new TicketController();
+    private final TicketController ticketController = TicketController.getInstance();
 
     // Constructor updated to take both booleans
     public ConfirmationPage(String plate, VehicleType type, boolean isHandicappedPerson, boolean hasCard, String spotID) {
@@ -69,7 +69,7 @@ public class ConfirmationPage extends JFrame {
 
         btnConfirm.addActionListener(e -> {
             // Save using hasCard status (as requested for DB)
-            boolean success = controller.generateTicket(plate, type.toString(), isHandicappedPerson, hasCard, spotID);
+            boolean success = ticketController.generateTicket(plate, type.toString(), isHandicappedPerson, hasCard, spotID);
 
             if (success) {
                 JOptionPane.showMessageDialog(this, "Ticket Generated Successfully!\nPlate: " + plate + "\nSpot: " + spotID);

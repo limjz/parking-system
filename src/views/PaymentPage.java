@@ -11,9 +11,9 @@ import utils.Config;
 
 public class PaymentPage extends JFrame {
 
-    private final TicketController ticketController = new TicketController();
-    private final DebtController debtController = new DebtController(); 
-    private final TransactionController transactionController = new TransactionController();
+    private final TicketController ticketController = TicketController.getInstance();
+    private final DebtController debtController = DebtController.getInstance();
+    private final TransactionController transactionController = TransactionController.getInstance();
     
     private JRadioButton rCard, rWallet, rQR, rCash;
 

@@ -107,8 +107,8 @@ public class TicketView extends JFrame {
 
 
     private void loadTickets () { 
-        TicketController tc = new TicketController(); 
-        List<Ticket> allTickets = tc.getAllTickets(); 
+        TicketController ticketController = TicketController.getInstance();
+        List<Ticket> allTickets = ticketController.getAllTickets(); 
 
         for (Ticket t : allTickets)
         { 

@@ -8,6 +8,24 @@ import utils.FileHandler;
 
 public class TransactionController {
 
+    private static TransactionController instance;
+
+    private TransactionController() {
+        // private constructor to prevent instantiation
+    }
+
+    public static TransactionController getInstance() {
+        if (instance == null) {
+            instance = new TransactionController();
+        }
+        return instance;
+    }
+
+
+
+
+
+
   private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   public void logTransaction (String plate, double amountPaid, String paymentMehod, String note){

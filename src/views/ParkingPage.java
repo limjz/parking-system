@@ -19,7 +19,7 @@ public class ParkingPage extends JFrame {
     private final boolean isHandicappedPerson; // User claimed to be handicapped
     private final boolean hasHandicappedCard;  // User has the card
     
-    private final TicketController ticketController = new TicketController();
+    private final TicketController ticketController = TicketController.getInstance();
 
     private final Color COL_COMPACT = new Color(173, 216, 230); 
     private final Color COL_REGULAR = new Color(144, 238, 144); 

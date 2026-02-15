@@ -12,8 +12,21 @@ import utils.FileHandler;
 
 public class TicketController {
 
+    private static TicketController instance;
+
     private final FineController fineController = new FineController ();
-    private final DebtController debtController = new DebtController ();
+    private final DebtController debtController = DebtController.getInstance();
+
+    private TicketController() {
+        // private constructor to prevent instantiation
+    }
+
+    public static TicketController getInstance() {
+        if (instance == null) {
+            instance = new TicketController();
+        }
+        return instance;
+    }
 
 
     public List<Ticket> getAllTickets() {

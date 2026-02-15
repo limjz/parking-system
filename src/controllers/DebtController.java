@@ -8,7 +8,21 @@ import utils.FileHandler;
 
 public class DebtController {
 
+  private static DebtController instance;
   
+  private DebtController() {
+        // private constructor to prevent instantiation
+    }
+
+    public static DebtController getInstance() {
+        if (instance == null) {
+            instance = new DebtController();
+        }
+        return instance;
+    }
+
+
+
   public List<Debt> getAllDebts() { 
 
     List<String> lines = FileHandler.readAllLines(Config.DEBT_FILE);

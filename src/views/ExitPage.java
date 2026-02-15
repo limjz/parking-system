@@ -10,7 +10,7 @@ import utils.Config;
 public class ExitPage extends JFrame {
 
     private JComboBox<Ticket> vehicleCombo;
-    private TicketController ticketController = new TicketController();
+    private final TicketController ticketController = TicketController.getInstance();
 
     public ExitPage() {
         super("Exit Terminal");
