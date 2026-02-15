@@ -21,13 +21,15 @@ public class Ticket {
     private double totalPayAmount; // fine + parking fee + debt
 
     private double previousDebt; 
+    private double amountPaid; // amount paid by the user (for receipt)
+
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     // --- CONSTRUCTOR 1: Reading from File ---
     public Ticket(String plate, String vehicleType, boolean isHandicappedPerson, boolean hasCard, 
                   String spotID, String entryStr, String exitStr, String durStr, 
-                  String payStr, String feeStr, String fineStr, String debtStr) {
+                  String payStr, String feeStr, String fineStr, String debtStr, String paidStr) {
 
         this.plate = plate;
         this.vehicleType = vehicleType;
@@ -49,7 +51,9 @@ public class Ticket {
         try { this.totalPayAmount = Double.parseDouble(payStr); } catch (Exception e) {}
         try { this.parkingFeeAmount = Double.parseDouble(feeStr); } catch (Exception e) {}
         try { this.fineAmount = Double.parseDouble(fineStr); } catch (Exception e) {}
-         try { this.previousDebt = Double.parseDouble(debtStr); } catch (Exception e) {}
+        try { this.previousDebt = Double.parseDouble(debtStr); } catch (Exception e) {}
+        try { this.amountPaid = Double.parseDouble(paidStr); } catch (Exception e) {}
+
     }
 
     // --- CONSTRUCTOR 2: New Entry ---
@@ -78,7 +82,8 @@ public class Ticket {
             String.format("%.2f", parkingFeeAmount), 
             String.format("%.2f", fineAmount),       
             String.format("%.2f", totalPayAmount),  
-            String.format("%.2f", previousDebt)
+            String.format("%.2f", previousDebt),
+            String.format("%.2f", amountPaid)
         );
     }
 
@@ -92,6 +97,7 @@ public class Ticket {
     public double getFineAmount () { return fineAmount; }
     public double getTotalPayAmount() { return totalPayAmount; }
     public double getPreviousDebt () { return previousDebt; }
+    public double getAmountPaid() { return amountPaid; }
 
 
     public String getEntryTimeStr() { return entryTime.format(FMT); }
@@ -113,6 +119,7 @@ public class Ticket {
     }
     
     // ------ setter ------
+    public void setAmountPaid(double amount) { this.amountPaid = amount; }
     public void setExitTime (){ 
         this.exitTime = LocalDateTime.now(); 
         // exit time subtract entry time --> duration 
@@ -127,7 +134,6 @@ public class Ticket {
         this.parkingFeeAmount = fee; 
         this.previousDebt = debt;
         this.totalPayAmount = fee + fine + debt; 
-        
     }
 
 

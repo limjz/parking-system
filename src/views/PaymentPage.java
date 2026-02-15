@@ -217,9 +217,12 @@ public class PaymentPage extends JFrame {
             "Process Payment", JOptionPane.YES_NO_OPTION);
         
         if (choice == JOptionPane.YES_OPTION) { 
+
+            ticket.setAmountPaid(amountToPay);
             // save exit time to db
             boolean success = ticketController.completeExit(ticket);
             
+
             if (success) { 
 
                 transactionController.logTransaction(ticket.getPlate(), amountToPay, paymentMethod, note);

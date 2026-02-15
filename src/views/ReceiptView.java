@@ -16,10 +16,12 @@ public class ReceiptView extends JFrame {
     private JLabel lblType = new JLabel("-");
     private JLabel lblEntry = new JLabel("-");
     private JLabel lblExit = new JLabel("-");
-    private JLabel lblDuration = new JLabel("-");
+    private JLabel lblBillableHours = new JLabel("-");
     private JLabel lblFee = new JLabel("-");
     private JLabel lblFine = new JLabel("-");
+    private JLabel lblDebt = new JLabel("-");
     private JLabel lblTotal = new JLabel("-");
+    private JLabel lblBalance = new JLabel("-");
 
     public ReceiptView() {
         setTitle("View Receipts");
@@ -49,7 +51,7 @@ public class ReceiptView extends JFrame {
         headerPanel.add(selectorPanel);
         add(headerPanel, BorderLayout.NORTH);
 
-        JPanel infoPanel = new JPanel(new GridLayout(9, 2, 10, 10));
+        JPanel infoPanel = new JPanel(new GridLayout(11, 2, 10, 10));
         infoPanel.setBorder(BorderFactory.createTitledBorder("Receipt Details"));
 
         infoPanel.add(new JLabel("License Plate:")); infoPanel.add(lblPlate);
@@ -57,10 +59,13 @@ public class ReceiptView extends JFrame {
         infoPanel.add(new JLabel("Vehicle Type:")); infoPanel.add(lblType);
         infoPanel.add(new JLabel("Entry Time:")); infoPanel.add(lblEntry);
         infoPanel.add(new JLabel("Exit Time:")); infoPanel.add(lblExit);
-        infoPanel.add(new JLabel("Duration:")); infoPanel.add(lblDuration);
+        infoPanel.add(new JLabel("Billable hour(s):")); infoPanel.add(lblBillableHours);
+
         infoPanel.add(new JLabel("Parking Fee:")); infoPanel.add(lblFee);
         infoPanel.add(new JLabel("Fine:")); infoPanel.add(lblFine);
+        infoPanel.add(new JLabel("Previous Debt")); infoPanel.add(lblDebt);
         infoPanel.add(new JLabel("Total Paid:")); infoPanel.add(lblTotal);
+        infoPanel.add(new JLabel("Balance")); infoPanel.add(lblBalance); // empty row for spacing
 
         Font font = new Font("Arial", Font.BOLD, 14);
         lblPlate.setForeground(Color.BLUE); lblPlate.setFont(font);
@@ -89,15 +94,24 @@ public class ReceiptView extends JFrame {
     private void displayReceiptDetails() {
         Ticket selected = (Ticket) receiptCombo.getSelectedItem();
         if (selected != null) {
+
+            double balance = selected.getTotalPayAmount() - selected.getAmountPaid();
+            double billableHours = Math.ceil(selected.getHourParked());
+            if (billableHours == 0) billableHours = 1;
+
             lblPlate.setText(selected.getPlate());
             lblSpot.setText(selected.getSpotID());
             lblType.setText(selected.getVehicleType());
             lblEntry.setText(selected.getEntryTimeStr());
             lblExit.setText(selected.getExitTimeStr());
-            lblDuration.setText(selected.getDurationStr());
+            lblBillableHours.setText(billableHours + " hour(s)");
+
             lblFee.setText(String.format("RM %.2f", selected.getParkingFeeAmount()));
             lblFine.setText(String.format("RM %.2f", selected.getFineAmount()));
+            lblDebt.setText(String.format("RM %.2f", selected.getPreviousDebt()));
             lblTotal.setText(String.format("RM %.2f", selected.getTotalPayAmount()));
+
+            lblBalance.setText(String.format("RM %.2f", balance));
         }
     }
 

@@ -6,26 +6,21 @@ import utils.Config;
 
 public class EntryExitView extends JFrame {
 
-    //private EntryExitController controller;
 
     public EntryExitView() {
         super("Customer Portal");
-        //this.controller = new EntryExitController();
 
-        setSize(Config.WINDOW_WIDTH/2, Config.WINDOW_HEIGHT/2);
-        setLocationRelativeTo(null);
+        setSize(400, 400);
 
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.CENTER;
-        Dimension btnSize = new Dimension(175, 25);
 
         // ---------------- Button ------------------
         JButton EntryButton = new JButton("Entry");
         Config.styleButton(EntryButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
-        // EntryButton.setPreferredSize(btnSize);
         gbc.gridy = 1;
         panel.add(EntryButton, gbc);
 
@@ -36,7 +31,6 @@ public class EntryExitView extends JFrame {
 
         JButton ExitButton = new JButton("Exit");
         Config.styleButton(ExitButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
-        //ExitButton.setPreferredSize(btnSize);
         gbc.gridy = 3;
         panel.add(ExitButton, gbc);
 
@@ -90,6 +84,9 @@ public class EntryExitView extends JFrame {
         });
 
         add(panel);
+
+        // pack();
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 }
