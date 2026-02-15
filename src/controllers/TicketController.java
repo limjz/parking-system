@@ -94,7 +94,7 @@ public class TicketController {
             hours = 1; 
         }
 
-        double hourRate = getSpotRate( ticket.getSpotID(), ticket.hasCard()); 
+        double hourRate = getSpotRate(ticket.getSpotID(), ticket.isHandicappedPerson(), ticket.hasCard()); 
         double standardFee = hours * hourRate; 
 
         double overstayFine = 0.0; //init fine equals to zero
@@ -153,20 +153,16 @@ public class TicketController {
         return success;
     }
 
-    private double getSpotRate (String spotID, boolean hasHandicapedCard)
-    { 
-        SpotType currentSpot = getSpotType(spotID);
-
-        if (hasHandicapedCard) {
-            if (currentSpot == SpotType.HANDICAPPED) {
-                return 0.0; // Free if got card and parked in handicapped spot
-            } else {
-                return 2.0; // Flat RM 2.00 if parked anywhere else
-            }
+    private double getSpotRate(String spotID, boolean isHandicappedPerson, boolean hasHandicappedCard) {
+        if (hasHandicappedCard) {
+            return 0.0; // Free if handicapped card is present
+        }
+        if (isHandicappedPerson) {
+            return 2.0; // Handicapped vehicles pay RM 2/hour
         }
 
+        SpotType currentSpot = getSpotType(spotID);
         return currentSpot.getRate();
-
     }
 
     private SpotType getSpotType(String spotID) {

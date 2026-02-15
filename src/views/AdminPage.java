@@ -23,7 +23,7 @@ public class AdminPage extends JFrame {
     private final JButton applyBtn = new JButton("Apply");
 
     public AdminPage() {
-        setTitle("University Parking Lot Management System — " + Config.adminUser);
+        setTitle("Parking Lot Management System — " + Config.adminUser);
    
 
         setLayout(new BorderLayout(12, 12));
@@ -60,7 +60,7 @@ public class AdminPage extends JFrame {
     // ========== HEADER ==========
     private JPanel buildHeader() {
         JPanel header = new JPanel(new BorderLayout(10, 10));
-        JLabel title = new JLabel("University Parking Lot Management System — Admin");
+        JLabel title = new JLabel("Parking Lot Management System — Admin");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
         header.add(title, BorderLayout.WEST);
         return header;
