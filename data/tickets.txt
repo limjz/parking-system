@@ -1,8 +1,0 @@
-sss|Car|false|false|F1-R3-S2|2026-02-09 22:50:37|2026-02-09 22:50:41|0
-dasdas|Motorcycle|false|false|F1-R3-S2|2026-02-09 22:56:20|2026-02-09 22:56:27|0|2.0
-dsa|Motorcycle|false|false|F1-R3-S3|2026-02-09 22:56:44|2026-02-09 23:02:41|5
-gdg|Car|true|false|F1-R1-S3|2026-02-09 22:56:51|2026-02-13 16:24:54|5368|180.00|50.00|230.00
-nnb|SUV/Truck|false|false|F1-R4-S2|2026-02-09 22:56:58|null|0|0.0
-fsd|Motorcycle|false|false|F1-R3-S4|2026-02-09 22:57:29|null|0|0.0
-VJH2063|Car|false|false|F2-R4-S1|2026-02-13 02:30:52|null|0|0.00
-gdg|Car|true|false|F1-R1-S1|2026-02-13 16:53:33|2026-02-13 16:54:16|0|2.00|0.00|52.00

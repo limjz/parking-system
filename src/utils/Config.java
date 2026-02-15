@@ -19,9 +19,11 @@ public class Config {
     public static final String PARKINGSPOT_BASE_FILE = "data/parkingspot_"; 
     
     public static final String TICKET_FILE = "data/tickets.txt";
+    public static final String RECEIPT_FILE = "data/receipt.txt";
     public static final String VIP_FILE = "data/VIP_Plate.txt";
     public static final String FINE_SCHEME_FILE = "data/fine_scheme.txt"; 
     public static final String DEBT_FILE = "data/outstanding_fines.txt";
+    public static final String TRANSACTION_FILE = "data/transaction.txt";
 
     // --- DELIMITERS ---
     public static final String DELIMITER_READ = "\\|"; 

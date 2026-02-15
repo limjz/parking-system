@@ -29,48 +29,44 @@ public class EntryPage extends JFrame {
         gbc.gridx = 1; gbc.gridy = 1; add(vehicleTypeCombo, gbc);     
 
         // Row 2: Is Handicapped?
-        gbc.gridx = 0; gbc.gridy = 2; add(new JLabel("Is Handicapped?"), gbc);
-        JCheckBox chkIsHandicapped = new JCheckBox("Yes");
-        gbc.gridx = 1; gbc.gridy = 2; add(chkIsHandicapped, gbc);
+        // gbc.gridx = 0; gbc.gridy = 2; add(new JLabel("Is Handicapped?"), gbc);
+        // JCheckBox chkIsHandicapped = new JCheckBox("Yes");
+        // gbc.gridx = 1; gbc.gridy = 2; add(chkIsHandicapped, gbc);
 
         // Row 3: Handicapped Card Holder
-        gbc.gridx = 0; gbc.gridy = 3; add(new JLabel("Handicapped Card Holder"), gbc);
+        gbc.gridx = 0; gbc.gridy = 2; add(new JLabel("Handicapped Card Holder"), gbc);
         JCheckBox chkHasCard = new JCheckBox("Yes");
         chkHasCard.setEnabled(false); // Disabled by default
-        gbc.gridx = 1; gbc.gridy = 3; add(chkHasCard, gbc);
+        gbc.gridx = 1; gbc.gridy = 2; add(chkHasCard, gbc);
 
         //Motorcycle cannot park at handicapped spot 
         // --------- Jcombo Action listener ---------
         vehicleTypeCombo.addActionListener(e -> {
             VehicleType selected = (VehicleType) vehicleTypeCombo.getSelectedItem();
             
-            if (selected == VehicleType.MOTORCYCLE) {
-                // Disable and Reset Handicapped options
-                chkIsHandicapped.setSelected(false);
-                chkIsHandicapped.setEnabled(false);
-                
-                chkHasCard.setSelected(false);
-                chkHasCard.setEnabled(false);
+            if (selected == VehicleType.HANDICAPPED) {
+                chkHasCard.setEnabled(true); //only handicapped car can have card
+
             } else {
-                // Re-enable the main checkbox for Cars/SUVs
-                chkIsHandicapped.setEnabled(true);
+                chkHasCard.setSelected(false); // reset
+                chkHasCard.setEnabled(false); // disable if not handicapped
             }
         });
         
         // --- Enable Card Checkbox only if Handicapped is selected ---
-        chkIsHandicapped.addActionListener(e -> {
-            if (chkIsHandicapped.isSelected()) {
-                chkHasCard.setEnabled(true);
-            } else {
-                chkHasCard.setEnabled(false);
-                chkHasCard.setSelected(false); 
-            }
-        });
+        // chkIsHandicapped.addActionListener(e -> {
+        //     if (chkIsHandicapped.isSelected()) {
+        //         chkHasCard.setEnabled(true);
+        //     } else {
+        //         chkHasCard.setEnabled(false);
+        //         chkHasCard.setSelected(false); 
+        //     }
+        // });
 
         // Trigger logic immediately (incase default is Motorcycle)
-        if (vehicleTypeCombo.getSelectedItem() == VehicleType.MOTORCYCLE) {
-             chkIsHandicapped.setEnabled(false);
-        }
+        // if (vehicleTypeCombo.getSelectedItem() == VehicleType.MOTORCYCLE) {
+        //      chkIsHandicapped.setEnabled(false);
+        // }
 
         // --------- Buttons ---------
         JPanel btnPanel = new JPanel();
@@ -99,8 +95,8 @@ public class EntryPage extends JFrame {
             // convert enum to string for filehandler 
             VehicleType selectedType = (VehicleType) vehicleTypeCombo.getSelectedItem(); 
             
-            boolean isHandicappedPerson = chkIsHandicapped.isSelected();
-            boolean hasCard = chkHasCard.isSelected();
+            boolean isHandicappedVehicle = (selectedType == VehicleType.HANDICAPPED); // only if the vehicle type is handicapped, then it can be a handicapped vehicle
+            boolean hasCard = chkHasCard.isSelected() && chkHasCard.isEnabled(); // only consider if the checkbox is enabled (which means they are handicapped)
 
             if(plate.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please enter a license plate.");
@@ -108,7 +104,7 @@ public class EntryPage extends JFrame {
             }
 
             // pass enum straight to parkingPage // selectedType
-            ParkingPage parkingPage = new ParkingPage(plate, selectedType, isHandicappedPerson, hasCard);
+            ParkingPage parkingPage = new ParkingPage(plate, selectedType, isHandicappedVehicle, hasCard);
             parkingPage.setVisible(true);
             this.setVisible(false);
         });

@@ -67,10 +67,10 @@ public class ParkingPage extends JFrame {
         panel.setBorder(BorderFactory.createTitledBorder("Spot Types & Hourly Rates"));
         panel.setBackground(Color.WHITE);
 
-        panel.add(createLegendItem("Compact (RM 2/hr)", COL_COMPACT));
-        panel.add(createLegendItem("Regular (RM 5/hr)", COL_REGULAR));
         panel.add(createLegendItem("Handicapped (RM 2/hr)", COL_HANDICAP));
         panel.add(createLegendItem("Reserved (RM 10/hr)", COL_RESERVED));
+        panel.add(createLegendItem("Compact (RM 2/hr)", COL_COMPACT));
+        panel.add(createLegendItem("Regular (RM 5/hr)", COL_REGULAR));
         panel.add(createLegendItem("Occupied", COL_OCCUPIED));
         return panel;
     }
@@ -127,45 +127,47 @@ public class ParkingPage extends JFrame {
                     spotButton.setEnabled(false); 
                 } else {
                     spotButton.addActionListener(e -> {
-                        
-                        // ------ Spot restriction logic ------
-                        
-                        // Non-Handicapped people cannot use Handicapped spots
-                        if (!this.isHandicappedPerson && spotType == SpotType.HANDICAPPED) {
-                             JOptionPane.showMessageDialog(this, 
-                                "Restriction: Only Handicapped vehicles can park here.", 
-                                "Invalid Selection", 
-                                JOptionPane.WARNING_MESSAGE);
-                            return;
-                        }
-                        
-                        // check for non-special spot if the car fits the spot 
-                        if (spotType != SpotType.RESERVED && spotType != SpotType.HANDICAPPED) {
-                            boolean sizeFit = false;
-                            
-                            switch (this.vehicleType) {
 
+                        // ------ Spot restriction logic ------
+
+                        // if the vehicle is handicapped, then it can park at any spot
+                        if (this.vehicleType == VehicleType.HANDICAPPED) {
+                            // Proceed immediately (Skip size & reserved checks)
+                        } 
+                        else {
+                            // --- Logic for NON-Handicapped Vehicles ---
+
+                            // Non-Handicapped people cannot use Handicapped spots
+                            if (spotType == SpotType.HANDICAPPED) {
+                                JOptionPane.showMessageDialog(this, 
+                                    "Only Handicapped vehicles can park here.", 
+                                    "Invalid Selection", 
+                                    JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            // check for non-special spot if the car fits the spot 
+                            boolean sizeFit = false;
+
+                            switch (this.vehicleType) {
                                 // Motorcycle: Compact ONLY
                                 case MOTORCYCLE -> {
-                                    if (spotType == SpotType.COMPACT) {
-                                        sizeFit = true; 
-                                    }
+                                    if (spotType == SpotType.COMPACT) sizeFit = true;
                                 }
 
                                 // Car: Compact or Regular
                                 case CAR -> {
-                                    if (spotType == SpotType.COMPACT || spotType == SpotType.REGULAR) {
-                                        sizeFit = true; 
-                                    }
+                                    if (spotType == SpotType.COMPACT || spotType == SpotType.REGULAR) sizeFit = true;
                                 }
-                                    
+
                                 // SUV: Regular ONLY
-                                case SUV ->{ 
-                                    if (spotType == SpotType.REGULAR) {
-                                        sizeFit = true; 
-                                    }
+                                case SUV -> {
+                                    if (spotType == SpotType.REGULAR) sizeFit = true;
                                 }
-                                    
+                            }
+
+                            if (spotType == SpotType.RESERVED) {
+                                sizeFit = true; 
                             }
 
                             if (!sizeFit) {
@@ -175,20 +177,24 @@ public class ParkingPage extends JFrame {
                                     JOptionPane.WARNING_MESSAGE);
                                 return;
                             }
-                        }
 
-                        // VIP reserved check
-                        if (spotType == SpotType.RESERVED) {
-                            if (!ticketController.isVip(this.plate)) {
-                                JOptionPane.showMessageDialog(this, "Access Denied: Not a VIP.", "Restricted Access", JOptionPane.ERROR_MESSAGE);
-                                return;
+                            // Restriction 2: Reserved Spot (Soft Block / Fine Warning)
+                            if (spotType == SpotType.RESERVED) {
+                                boolean isVip = ticketController.isVip(this.plate);
+                                if (!isVip) {
+                                    int confirm = JOptionPane.showConfirmDialog(this, 
+                                        "WARNING: This is a RESERVED spot and you are not a VIP.\n" +
+                                        "You will be fined according to the scheme.\n\nContinue?", 
+                                        "Violation Warning", JOptionPane.YES_NO_OPTION);
+                                    
+                                    if (confirm == JOptionPane.NO_OPTION) return; // User backed out
+                                }
                             }
                         }
 
                         // --- CONFIRMATION ---
                         int choice = JOptionPane.showConfirmDialog(this, "Select spot " + spotID + "?", "Confirm", JOptionPane.YES_NO_OPTION);
                         if (choice == JOptionPane.YES_OPTION) {
-                            // Pass both booleans to confirmation
                             new ConfirmationPage(plate, vehicleType, isHandicappedPerson, hasHandicappedCard, spotID).setVisible(true);
                             dispose();
                         }

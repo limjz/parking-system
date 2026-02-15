@@ -31,12 +31,36 @@ public class TicketController {
                 String fee = (p.length > 8) ? p[8] : "0";
                 String fine = (p.length > 9) ? p[9] : "0";
                 String pay = (p.length > 10) ? p[10] : "0";
+                String debt = (p.length > 11) ? p[11] : "0";
 
                 tickets.add(new Ticket(p[0], p[1], Boolean.parseBoolean(p[2]), 
-                                       Boolean.parseBoolean(p[3]), p[4], p[5], exit, duration, fee, fine, pay));
+                                       Boolean.parseBoolean(p[3]), p[4], p[5], exit, duration, fee, fine, pay, debt));
             } catch (Exception e) {}
         }
         return tickets;
+    }
+
+    public List<Ticket> getAllReceipts() {
+        List<String> lines = FileHandler.readAllLines(Config.RECEIPT_FILE);
+        List<Ticket> receipts = new ArrayList<>();
+
+        for (String line : lines) {
+            try {
+                String[] p = line.split(Config.DELIMITER_READ);
+                if (p.length < 6) continue;
+
+                String exit = (p.length > 6) ? p[6] : "null";
+                String duration = (p.length > 7) ? p[7] : "0";
+                String fee = (p.length > 8) ? p[8] : "0";
+                String fine = (p.length > 9) ? p[9] : "0";
+                String pay = (p.length > 10) ? p[10] : "0";
+                String debt = (p.length > 11) ? p[11] : "0";
+
+                receipts.add(new Ticket(p[0], p[1], Boolean.parseBoolean(p[2]),
+                                       Boolean.parseBoolean(p[3]), p[4], p[5], exit, duration, fee, fine, pay, debt));
+            } catch (Exception e) {}
+        }
+        return receipts;
     }
 
     // ENTRY
@@ -58,21 +82,31 @@ public class TicketController {
         double hourRate = getSpotRate( ticket.getSpotID(), ticket.hasCard()); 
         double standardFee = hours * hourRate; 
 
-        double fine = 0.0; //init fine equals to zero
+        double overstayFine = 0.0; //init fine equals to zero
+        double violationFine = 0.0; // init reserved spot violation fine equals to zero
 
         // overstay fine calculate
         if (hours > 24){ 
             FineSchemeType currentScheme = fineController.getCurrentScheme(); 
             FineStrategy strategy = fineController.createStrategy(currentScheme);
-            fine = strategy.calculateFine(hours); 
-
+            overstayFine = strategy.calculateFine(hours); 
         }
+
+        SpotType spotType = getSpotType(ticket.getSpotID());
+        if (spotType == SpotType.RESERVED ) {
+            boolean isVIP = isVip(ticket.getPlate());
+            if (!isVIP) {
+                violationFine = 50.0;
+            }
+        }
+
+        double totalFine = overstayFine + violationFine;
 
         // check if got debt in outstanding_fines.txt
         double oldDebt = debtController.getDebtAmount(ticket.getPlate()); 
 
         // sum up all the payment amount
-        ticket.setCost(standardFee, fine, oldDebt);
+        ticket.setCost(standardFee, totalFine, oldDebt);
 
     }
 
@@ -88,8 +122,7 @@ public class TicketController {
             
             // Match Plate AND ensure ExitTime is "null" (Active ticket)
             if (parts.length >= 6 && parts[0].equals(ticketToExit.getPlate()) && parts[6].equals("null")) {
-                
-                newLines.add(ticketToExit.toFileString()); // Update ticket with exit time and fee & fine
+                FileHandler.appendData(Config.RECEIPT_FILE, ticketToExit.toFileString());
                 updateSpotFile(ticketToExit.getSpotID(), false, "null", false); // Free spot
                 success = true;
 
@@ -107,27 +140,7 @@ public class TicketController {
 
     private double getSpotRate (String spotID, boolean hasHandicapedCard)
     { 
-        String floorPrefix = spotID.split("-")[0]; // "F1"
-        String filename = Config.PARKINGSPOT_BASE_FILE + floorPrefix + ".txt"; // target to specific floor 
-        List <String> lines = FileHandler.readAllLines(filename);
-
-        String spotTypeStr = "Regular"; 
-
-        for (String line : lines){ 
-            // check if the db is start from spotID (F1-R1-S1)
-            if (line.startsWith(spotID))
-            { 
-                String [] p = line.split(Config.DELIMITER_READ); 
-                
-                if (p.length > 1) { 
-                    spotTypeStr = p[1]; // second object is the type // Regular, Compact,...
-                    break; 
-                }
-            }
-        }
-
-
-        SpotType currentSpot = SpotType.fromString(spotTypeStr);
+        SpotType currentSpot = getSpotType(spotID);
 
         if (hasHandicapedCard) {
             if (currentSpot == SpotType.HANDICAPPED) {
@@ -139,6 +152,28 @@ public class TicketController {
 
         return currentSpot.getRate();
 
+    }
+
+    private SpotType getSpotType(String spotID) {
+        String floorPrefix = spotID.split("-")[0]; // "F1"
+        String filename = Config.PARKINGSPOT_BASE_FILE + floorPrefix + ".txt"; // target to specific floor
+        List<String> lines = FileHandler.readAllLines(filename);
+
+        String spotTypeStr = "Regular";
+
+        for (String line : lines) {
+            // check if the db is start from spotID (F1-R1-S1)
+            if (line.startsWith(spotID)) {
+                String[] p = line.split(Config.DELIMITER_READ);
+
+                if (p.length > 1) {
+                    spotTypeStr = p[1]; // second object is the type // Regular, Compact,...
+                    break;
+                }
+            }
+        }
+
+        return SpotType.fromString(spotTypeStr);
     }
 
 
