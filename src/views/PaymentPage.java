@@ -2,6 +2,7 @@ package views;
 
 import controllers.DebtController;
 import controllers.TicketController;
+import controllers.TransactionController;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,6 +13,10 @@ public class PaymentPage extends JFrame {
 
     private final TicketController ticketController = new TicketController();
     private final DebtController debtController = new DebtController(); 
+    private final TransactionController transactionController = new TransactionController();
+    
+    private JRadioButton rCard, rWallet, rQR, rCash;
+
 
     public PaymentPage(Ticket ticket) {
         setTitle("Payment Counter");
@@ -66,7 +71,7 @@ public class PaymentPage extends JFrame {
 
         // Fines (Red if exists)
         gbc.gridy = 11; gbc.gridx = 0;
-        detailsPanel.add(new JLabel("Fines (Overstay):"), gbc);
+        detailsPanel.add(new JLabel("Fines:"), gbc);
         gbc.gridx = 1;
         JLabel lblFine = new JLabel(String.format("RM %.2f", ticket.getFineAmount()));
         if (ticket.getFineAmount() > 0) {
@@ -113,10 +118,10 @@ public class PaymentPage extends JFrame {
         JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         radioPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        JRadioButton rCard = new JRadioButton("Credit/Debit Card");
-        JRadioButton rWallet = new JRadioButton("E-Wallet");
-        JRadioButton rQR = new JRadioButton("QR Pay");
-        JRadioButton rCash = new JRadioButton("Cash");
+        rCard = new JRadioButton("Credit/Debit Card");
+        rWallet = new JRadioButton("E-Wallet");
+        rQR = new JRadioButton("QR Pay");
+        rCash = new JRadioButton("Cash");
         
         ButtonGroup group = new ButtonGroup();
         group.add(rCard); 
@@ -165,11 +170,13 @@ public class PaymentPage extends JFrame {
         });
 
         payFeeOnlyButton.addActionListener(e -> {
-            processPayment(ticket, false);
+            String method = getSelectedMethod ();
+            processPayment(ticket, false, method);
         });
 
         payAllButton.addActionListener(e -> { 
-            processPayment(ticket, true);
+            String method = getSelectedMethod ();
+            processPayment(ticket, true, method);
         });
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -191,9 +198,19 @@ public class PaymentPage extends JFrame {
         panel.add(lblValue, gbc);
     }
 
-    private void processPayment(Ticket ticket, boolean isFullPayment) { 
+
+    private String getSelectedMethod (){ 
+        if (rCard.isSelected()) return "CARD";
+        if (rWallet.isSelected()) return "E-WALLET";
+        if (rQR.isSelected()) return "QR PAY";
+        if (rCash.isSelected()) return "CASH";
+        return "UNKNOWN";
+    }
+
+    private void processPayment(Ticket ticket, boolean isFullPayment, String paymentMethod) { 
         // Logic: Pay Full (Total) OR Pay Fee Only (Fee)
         double amountToPay = isFullPayment ? ticket.getTotalPayAmount() : ticket.getParkingFeeAmount(); 
+        String note = isFullPayment ? "FULL_PAYMENT" : "FEE_ONLY_DEFER_FINE";
 
         int choice = JOptionPane.showConfirmDialog(this, 
             "Confirm Payment of RM " + String.format("%.2f", amountToPay) + "?", 
@@ -204,6 +221,9 @@ public class PaymentPage extends JFrame {
             boolean success = ticketController.completeExit(ticket);
             
             if (success) { 
+
+                transactionController.logTransaction(ticket.getPlate(), amountToPay, paymentMethod, note);
+
                 if (isFullPayment) { 
                     // pay everything 
                     if (ticket.getPreviousDebt() > 0) { 

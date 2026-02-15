@@ -31,9 +31,10 @@ public class TicketController {
                 String fee = (p.length > 8) ? p[8] : "0";
                 String fine = (p.length > 9) ? p[9] : "0";
                 String pay = (p.length > 10) ? p[10] : "0";
+                String debt = (p.length > 11) ? p[11] : "0";
 
                 tickets.add(new Ticket(p[0], p[1], Boolean.parseBoolean(p[2]), 
-                                       Boolean.parseBoolean(p[3]), p[4], p[5], exit, duration, fee, fine, pay));
+                                       Boolean.parseBoolean(p[3]), p[4], p[5], exit, duration, fee, fine, pay, debt));
             } catch (Exception e) {}
         }
         return tickets;
@@ -53,9 +54,10 @@ public class TicketController {
                 String fee = (p.length > 8) ? p[8] : "0";
                 String fine = (p.length > 9) ? p[9] : "0";
                 String pay = (p.length > 10) ? p[10] : "0";
+                String debt = (p.length > 11) ? p[11] : "0";
 
                 receipts.add(new Ticket(p[0], p[1], Boolean.parseBoolean(p[2]),
-                                       Boolean.parseBoolean(p[3]), p[4], p[5], exit, duration, fee, fine, pay));
+                                       Boolean.parseBoolean(p[3]), p[4], p[5], exit, duration, fee, fine, pay, debt));
             } catch (Exception e) {}
         }
         return receipts;
@@ -80,26 +82,31 @@ public class TicketController {
         double hourRate = getSpotRate( ticket.getSpotID(), ticket.hasCard()); 
         double standardFee = hours * hourRate; 
 
-        double fine = 0.0; //init fine equals to zero
+        double overstayFine = 0.0; //init fine equals to zero
+        double violationFine = 0.0; // init reserved spot violation fine equals to zero
 
         // overstay fine calculate
         if (hours > 24){ 
             FineSchemeType currentScheme = fineController.getCurrentScheme(); 
             FineStrategy strategy = fineController.createStrategy(currentScheme);
-            fine = strategy.calculateFine(hours); 
-
+            overstayFine = strategy.calculateFine(hours); 
         }
 
         SpotType spotType = getSpotType(ticket.getSpotID());
-        if (spotType == SpotType.RESERVED && !isVip(ticket.getPlate())) {
-            // TODO: add reserved spot non-VIP fine logic (in addition to RM 10/hr)
+        if (spotType == SpotType.RESERVED ) {
+            boolean isVIP = isVip(ticket.getPlate());
+            if (!isVIP) {
+                violationFine = 50.0;
+            }
         }
+
+        double totalFine = overstayFine + violationFine;
 
         // check if got debt in outstanding_fines.txt
         double oldDebt = debtController.getDebtAmount(ticket.getPlate()); 
 
         // sum up all the payment amount
-        ticket.setCost(standardFee, fine, oldDebt);
+        ticket.setCost(standardFee, totalFine, oldDebt);
 
     }
 

@@ -71,13 +71,28 @@ public class AdminController {
         long parked = ticketController.getAllTickets().stream().filter(t -> t.getExitTimeStr().equals("-")).count();
         int totalSpots = layout.getTotalSpots();
         double rate = (parked * 100.0 / totalSpots);
-        return "Parked: " + parked + "\nTotal Spots: " + totalSpots + "\nRate: " + String.format("%.2f", rate) + "%";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== OCCUPANCY REPORT ===\n\n");
+        sb.append(String.format ("Parked Vehicles: %d\nTotal Spots: %d\nOccupancy Rate: %.2f%%\n\n", parked, totalSpots, rate));
+
+        sb.append("----------------------\n");
+        sb.append("Note: Occupancy rate is calculated based on currently parked vehicles and total parking spots available in the system.");
+
+        return sb.toString();
     }
 
-    // 2. Revenue Report
+    // Revenue Report
     private String reportRevenue() {
-        double sum = ticketController.getAllTickets().stream().mapToDouble(Ticket::getTotalPayAmount).sum();
-        return "Total Revenue: RM " + String.format("%.2f", sum);
+        double totalRevenue = new TransactionController().getTotalRevenue();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== REVENUE REPORT ===\n\n");
+        sb.append(String.format("Total Revenue: RM %.2f\n\n", totalRevenue));
+        sb.append("----------------------\n");
+        sb.append("Note: Figures include all Parking Fees and Fines collected.");
+
+        return sb.toString();
     }
 
     //  Current Vehicles Report
@@ -107,12 +122,12 @@ public class AdminController {
         }
 
         StringBuilder sb = new StringBuilder("=== OUTSTANDING FINES REPORT ===\n\n");
-        sb.append(String.format("%-15s | %-10s\n", "License Plate", "Amount"));
+        sb.append(String.format("%-15s | %-10s\n\n", "License Plate", "Amount"));
         sb.append("-----------------------------\n");
 
         double totalDebt = 0.0;
 
-        // 3. Loop through the Debt objects
+        // Loop through the Debt objects
         for (Debt d : allDebts) {
             sb.append(String.format("%-15s | RM %7.2f\n", d.getPlate(), d.getDebtAmount()));
             totalDebt += d.getDebtAmount();

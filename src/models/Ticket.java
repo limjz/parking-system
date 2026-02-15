@@ -27,7 +27,7 @@ public class Ticket {
     // --- CONSTRUCTOR 1: Reading from File ---
     public Ticket(String plate, String vehicleType, boolean isHandicappedPerson, boolean hasCard, 
                   String spotID, String entryStr, String exitStr, String durStr, 
-                  String payStr, String feeStr, String fineStr) {
+                  String payStr, String feeStr, String fineStr, String debtStr) {
 
         this.plate = plate;
         this.vehicleType = vehicleType;
@@ -49,6 +49,7 @@ public class Ticket {
         try { this.totalPayAmount = Double.parseDouble(payStr); } catch (Exception e) {}
         try { this.parkingFeeAmount = Double.parseDouble(feeStr); } catch (Exception e) {}
         try { this.fineAmount = Double.parseDouble(fineStr); } catch (Exception e) {}
+         try { this.previousDebt = Double.parseDouble(debtStr); } catch (Exception e) {}
     }
 
     // --- CONSTRUCTOR 2: New Entry ---
@@ -76,7 +77,8 @@ public class Ticket {
             String.valueOf(durationMinutes),
             String.format("%.2f", parkingFeeAmount), 
             String.format("%.2f", fineAmount),       
-            String.format("%.2f", totalPayAmount)    
+            String.format("%.2f", totalPayAmount),  
+            String.format("%.2f", previousDebt)
         );
     }
 
