@@ -116,8 +116,8 @@ public class ReceiptView extends JFrame {
     }
 
     private void loadReceipts() {
-        TicketController tc = new TicketController();
-        List<Ticket> receipts = tc.getAllReceipts();
+        TicketController ticketController = TicketController.getInstance();
+        List<Ticket> receipts = ticketController.getAllReceipts();
         for (Ticket t : receipts) {
             receiptCombo.addItem(t);
         }

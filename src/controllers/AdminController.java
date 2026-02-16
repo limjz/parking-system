@@ -14,8 +14,9 @@ public class AdminController {
 
     private final LoginController loginController = new LoginController();
     private final FineController fineController = new FineController(); 
-    private final TicketController ticketController = new TicketController(); 
-    private final DebtController debtController = new DebtController();
+    private final TicketController ticketController = TicketController.getInstance();
+    private final DebtController debtController = DebtController.getInstance();
+    private final TransactionController transactionController = TransactionController.getInstance();
     private final FineContext fineContext;
     private final ParkingLayout layout; // Replaces ParkingStructureConfig
 
@@ -84,7 +85,7 @@ public class AdminController {
 
     // Revenue Report
     private String reportRevenue() {
-        double totalRevenue = new TransactionController().getTotalRevenue();
+        double totalRevenue = transactionController.getTotalRevenue();
 
         StringBuilder sb = new StringBuilder();
         sb.append("=== REVENUE REPORT ===\n\n");

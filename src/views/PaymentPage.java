@@ -11,9 +11,9 @@ import utils.Config;
 
 public class PaymentPage extends JFrame {
 
-    private final TicketController ticketController = new TicketController();
-    private final DebtController debtController = new DebtController(); 
-    private final TransactionController transactionController = new TransactionController();
+    private final TicketController ticketController = TicketController.getInstance();
+    private final DebtController debtController = DebtController.getInstance();
+    private final TransactionController transactionController = TransactionController.getInstance();
     
     private JRadioButton rCard, rWallet, rQR, rCash;
 
@@ -51,26 +51,27 @@ public class PaymentPage extends JFrame {
         // Rows
         addDetailRow(detailsPanel, gbc, 0, "License Plate:", ticket.getPlate());
         addDetailRow(detailsPanel, gbc, 1, "Vehicle Type:", ticket.getVehicleType());
-        addDetailRow(detailsPanel, gbc, 2, "Spot ID:", ticket.getSpotID());
+        addDetailRow(detailsPanel, gbc, 2, "Has Handicapped Card:", ticket.hasCard() ? "YES" : "NO");
+        addDetailRow(detailsPanel, gbc, 3, "Spot ID:", ticket.getSpotID());
         
-        gbc.gridy = 3; gbc.gridwidth = 2;
+        gbc.gridy = 4; gbc.gridwidth = 2;
         detailsPanel.add(Box.createVerticalStrut(10), gbc);
         gbc.gridwidth = 1;
 
-        addDetailRow(detailsPanel, gbc, 4, "Entry Time:", ticket.getEntryTimeStr());
-        addDetailRow(detailsPanel, gbc, 5, "Exit Time:", ticket.getExitTimeStr());
-        addDetailRow(detailsPanel, gbc, 6, "Total Duration:", ticket.getDurationStr());
+        addDetailRow(detailsPanel, gbc, 5, "Entry Time:", ticket.getEntryTimeStr());
+        addDetailRow(detailsPanel, gbc, 6, "Exit Time:", ticket.getExitTimeStr());
+        addDetailRow(detailsPanel, gbc, 7, "Total Duration:", ticket.getDurationStr());
 
-        gbc.gridy = 7; gbc.gridwidth = 2;
+        gbc.gridy = 8; gbc.gridwidth = 2;
         detailsPanel.add(new JSeparator(), gbc);
         gbc.gridwidth = 1;
 
-        addDetailRow(detailsPanel, gbc, 8, "Billable Hours:", String.format("%.0f hrs", billableHours));
-        addDetailRow(detailsPanel, gbc, 9, "Hourly Rate:", String.format("RM %.2f /hr", ratePerHour));
-        addDetailRow(detailsPanel, gbc, 10, "Parking Fees:", String.format("RM %.2f", ticket.getParkingFeeAmount()));
+        addDetailRow(detailsPanel, gbc, 9, "Billable Hours:", String.format("%.0f hrs", billableHours));
+        addDetailRow(detailsPanel, gbc, 10, "Hourly Rate:", String.format("RM %.2f /hr", ratePerHour));
+        addDetailRow(detailsPanel, gbc, 11, "Parking Fees:", String.format("RM %.2f", ticket.getParkingFeeAmount()));
 
         // Fines (Red if exists)
-        gbc.gridy = 11; gbc.gridx = 0;
+        gbc.gridy = 12; gbc.gridx = 0;
         detailsPanel.add(new JLabel("Fines:"), gbc);
         gbc.gridx = 1;
         JLabel lblFine = new JLabel(String.format("RM %.2f", ticket.getFineAmount()));
@@ -81,7 +82,7 @@ public class PaymentPage extends JFrame {
         detailsPanel.add(lblFine, gbc);
 
         // Previous Debt (Red if exists)
-        gbc.gridy = 12; gbc.gridx = 0;
+        gbc.gridy = 13; gbc.gridx = 0;
         detailsPanel.add(new JLabel("Outstanding Debt:"), gbc);
         gbc.gridx = 1;
         JLabel lblDebt = new JLabel(String.format("RM %.2f", ticket.getPreviousDebt()));
