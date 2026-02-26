@@ -5,7 +5,8 @@ public enum SpotType {
   COMPACT ("Compact", 2.0), 
   REGULAR ("Regular", 5.0), 
   HANDICAPPED ("Handicapped", 2.0),
-  RESERVED ("Reserved", 10.0); 
+  RESERVED ("Reserved", 10.0);
+  //ELECTRIC ("Electric", 8.0);
 
   private final String type; 
   private final double hourlyRate; 

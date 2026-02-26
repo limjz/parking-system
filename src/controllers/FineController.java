@@ -21,7 +21,7 @@ public class FineController {
             case FIXED -> new FixedFine(); 
             case HOURLY -> new HourlyFine();
             case PROGRESSIVE -> new ProgressiveFine();
-            // case NEW -> new newFine(); // just a extra one to experiment 
+            //case NEW -> new NewFine(); // just a extra one to experiment 
         };
     }
 

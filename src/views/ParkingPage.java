@@ -113,6 +113,7 @@ public class ParkingPage extends JFrame {
                     case REGULAR -> spotButton.setBackground(COL_REGULAR);
                     case HANDICAPPED -> spotButton.setBackground(COL_HANDICAP);
                     case RESERVED -> spotButton.setBackground(COL_RESERVED);
+                    //case ELECTRIC -> spotButton.setBackground(new Color(255, 255, 102)); // light yellow for testing 
                     default ->  spotButton.setBackground(Color.LIGHT_GRAY);
                 }
 
