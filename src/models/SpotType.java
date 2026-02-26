@@ -28,8 +28,8 @@ public enum SpotType {
       return REGULAR; // default 
     }
 
-    // @Override
-    // public String toString() { 
-    //     return type; // This makes the Dropdown show "Regular" instead of "REGULAR"
-    // }
+    @Override
+    public String toString() { 
+        return type; // This makes the Dropdown show "Regular" instead of "REGULAR"
+    }
 }

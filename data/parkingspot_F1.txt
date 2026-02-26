@@ -16,5 +16,5 @@ F1-R3-S5|Compact|false|null|false
 F1-R4-S1|Regular|false|null|false
 F1-R4-S2|Regular|false|null|false
 F1-R4-S3|Regular|false|null|false
-F1-R4-S4|Regular|true|VJH2063|false
+F1-R4-S4|Regular|false|null|false
 F1-R4-S5|Regular|false|null|false

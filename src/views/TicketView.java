@@ -48,7 +48,7 @@ public class TicketView extends JFrame {
 
         add(headerPanel, BorderLayout.NORTH);
 
-        // --- CENTER ---
+        // ------------ CENTER ------------
         JPanel infoPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         infoPanel.setBorder(BorderFactory.createTitledBorder("Ticket Details"));
         
@@ -69,13 +69,13 @@ public class TicketView extends JFrame {
         centerPanel.add(infoPanel, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        // --- BOTTOM ---
+        // ------------ BOTTOM ------------
         JPanel btnPanel = new JPanel();
         JButton btnBack = new JButton("Back to Main Menu");
 
         Config.styleButton(btnBack, Config.COLOR_PRIMARY, Config.BTN_SIZE_MEDIUM);
 
-        //  -------------- Action Listener -----------------
+        //  ------------ Action Listener ------------
         btnBack.addActionListener(e -> {
             new EntryExitView().setVisible(true);
             dispose();

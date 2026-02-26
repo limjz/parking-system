@@ -30,12 +30,12 @@ public class AdminController {
         this.fineContext = new FineContext(fineController.createStrategy(scheme));
     }
 
-    // ------ LOGIN ------
+    // ------------ LOGIN ------------
     public boolean isLogin(String user, String pass) {
         return loginController.authenticateAdmin(user, pass);
     }
 
-    // ------ FINE SCHEME ------
+    // ------------ FINE SCHEME ------------
     public FineSchemeType getFineSchemeFromFile() {
         return fineController.getCurrentScheme();
     }
@@ -55,7 +55,7 @@ public class AdminController {
         return sb.toString();
     }
 
-    // --- REPORTING (Consolidated Logic) ---
+    // --------- REPORTING (Logic) ---------
 
     public String generateReport(AdminReport.Type type) {
         return switch (type) {
@@ -96,7 +96,7 @@ public class AdminController {
         return sb.toString();
     }
 
-    //  Current Vehicles Report
+    // Current Vehicles Report
     private String reportCurrentVehicles() {
         StringBuilder sb = new StringBuilder("=== CURRENT VEHICLES ===\n");
         List<Ticket> tickets = ticketController.getAllTickets();
@@ -167,7 +167,7 @@ public class AdminController {
         return sb.toString();
     }
 
-    // 5. All Floors Overview
+    // All Floors Overview
     public String generateAllFloorsOverview() {
         return reportOccupancy() + "\n\n(Use 'Parking Structure' buttons to see detailed floor maps)";
     }

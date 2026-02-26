@@ -23,9 +23,6 @@ public class TransactionController {
 
 
 
-
-
-
   private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   public void logTransaction (String plate, double amountPaid, String paymentMehod, String note){

@@ -22,18 +22,18 @@ public class ExitPage extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Title
+        // ------------ Title ------------
         JLabel titleLabel = new JLabel("Parking Exit");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         add(titleLabel, gbc);
 
-        // Label
+        // ------------ Label ------------
         gbc.gridy = 1; gbc.gridwidth = 1;
         add(new JLabel("Select Vehicle to Exit:"), gbc);
 
-        // Dropdown
+        // ------------ Dropdown ------------
         vehicleCombo = new JComboBox<>();
         List<Ticket> allTickets = ticketController.getAllTickets();
         for (Ticket t : allTickets)
@@ -46,7 +46,7 @@ public class ExitPage extends JFrame {
         gbc.gridx = 1; 
         add(vehicleCombo, gbc);
 
-        // Buttons
+        // ------------ Buttons ------------
         JPanel btnPanel = new JPanel();
         JButton backButton = new JButton("Back");
         JButton nexButton = new JButton("Proceed to Payment");
@@ -60,7 +60,7 @@ public class ExitPage extends JFrame {
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
         add(btnPanel, gbc);
 
-        // --- ACTIONS ---
+        // ------------ Action Listener ------------
         backButton.addActionListener(e -> {
             new EntryExitView().setVisible(true);
             dispose();

@@ -15,6 +15,6 @@ public enum VehicleType {
 
   @Override
   public String toString() {
-      return displayName; // You return the nice "displayName" variable
+      return displayName;
   }
 }

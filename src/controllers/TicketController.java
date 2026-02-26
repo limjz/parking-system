@@ -78,7 +78,7 @@ public class TicketController {
         return receipts;
     }
 
-    // ENTRY
+    // ------------ ENTRY ------------
     public boolean generateTicket(String plate, String type, boolean isPerson, boolean hasCard, String spotID) {
         Ticket newTicket = new Ticket(plate, type, isPerson, hasCard, spotID);
         FileHandler.appendData(Config.TICKET_FILE, newTicket.toFileString());
@@ -126,7 +126,7 @@ public class TicketController {
     }
 
 
-    // EXIT
+    // ------------ EXIT ------------
     public boolean completeExit(Ticket ticketToExit) {
         List<String> lines = FileHandler.readAllLines(Config.TICKET_FILE);
         List<String> newLines = new ArrayList<>();
@@ -139,6 +139,9 @@ public class TicketController {
             if (parts.length >= 6 && parts[0].equals(ticketToExit.getPlate()) && parts[6].equals("null")) {
                 FileHandler.appendData(Config.RECEIPT_FILE, ticketToExit.toFileString());
                 updateSpotFile(ticketToExit.getSpotID(), false, "null", false); // Free spot
+                
+                removeVip(ticketToExit.getPlate()); // Remove VIP status if exists
+
                 success = true;
 
             } 
@@ -220,6 +223,22 @@ public class TicketController {
             if (vip.trim().equalsIgnoreCase(plate.trim())) return true;
         }
         return false;
+    }
+
+
+    private void removeVip(String plateToRemove) {
+        List<String> vipList = FileHandler.readAllLines(Config.VIP_FILE);
+        StringBuilder sb = new StringBuilder();
+        
+        for (String line : vipList) {
+            // Since the file is JUST the plate, we check if it is NOT equal
+            if (!line.trim().equalsIgnoreCase(plateToRemove)) {
+                sb.append(line).append("\n");
+            }
+        }
+        
+        // Overwrite the file with the remaining VIPs
+        FileHandler.updateData(Config.VIP_FILE, sb.toString().trim());
     }
 
 }

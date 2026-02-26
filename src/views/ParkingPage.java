@@ -12,7 +12,6 @@ import utils.FileHandler;
 public class ParkingPage extends JFrame {
 
     private final String plate;
-    //private final String vehicleType;
     private final VehicleType vehicleType;
 
 
@@ -50,7 +49,6 @@ public class ParkingPage extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton backButton = new JButton("Back to Entry");
-        // backButton.setPreferredSize(new Dimension(150, 30));
         Config.styleButton(backButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
         backButton.addActionListener(e -> {
             new EntryPage().setVisible(true);
@@ -128,15 +126,11 @@ public class ParkingPage extends JFrame {
                 } else {
                     spotButton.addActionListener(e -> {
 
-                        // ------ Spot restriction logic ------
-
                         // if the vehicle is handicapped, then it can park at any spot
                         if (this.vehicleType == VehicleType.HANDICAPPED) {
                             // Proceed immediately (Skip size & reserved checks)
                         } 
                         else {
-                            // --- Logic for NON-Handicapped Vehicles ---
-
                             // Non-Handicapped people cannot use Handicapped spots
                             if (spotType == SpotType.HANDICAPPED) {
                                 JOptionPane.showMessageDialog(this, 
@@ -150,6 +144,7 @@ public class ParkingPage extends JFrame {
                             boolean sizeFit = false;
 
                             switch (this.vehicleType) {
+                                
                                 // Motorcycle: Compact ONLY
                                 case MOTORCYCLE -> {
                                     if (spotType == SpotType.COMPACT) sizeFit = true;
@@ -178,7 +173,7 @@ public class ParkingPage extends JFrame {
                                 return;
                             }
 
-                            // Restriction 2: Reserved Spot (Soft Block / Fine Warning)
+                            // Reserved Spot (Soft Block / Fine Warning)
                             if (spotType == SpotType.RESERVED) {
                                 boolean isVip = ticketController.isVip(this.plate);
                                 if (!isVip) {
@@ -192,7 +187,7 @@ public class ParkingPage extends JFrame {
                             }
                         }
 
-                        // --- CONFIRMATION ---
+                        // confirmation message and option 
                         int choice = JOptionPane.showConfirmDialog(this, "Select spot " + spotID + "?", "Confirm", JOptionPane.YES_NO_OPTION);
                         if (choice == JOptionPane.YES_OPTION) {
                             new ConfirmationPage(plate, vehicleType, isHandicappedPerson, hasHandicappedCard, spotID).setVisible(true);

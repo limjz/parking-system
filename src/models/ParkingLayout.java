@@ -6,7 +6,7 @@ public class ParkingLayout {
   private final int rowsPerFloor;
   private final int spotsPerRow;
 
-  // Default configuration: 5 Floors, 20 Spots/Floor
+  // Default configuration: 5 Floors, 20 Spots per floor
   public ParkingLayout(int floors, int spotsPerFloor, int rowsPerFloor, int spotsPerRow) {
       this.floors = floors;
       this.spotsPerFloor = spotsPerFloor;

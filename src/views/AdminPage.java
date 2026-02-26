@@ -73,7 +73,7 @@ public class AdminPage extends JFrame {
         menu.setBorder(BorderFactory.createTitledBorder("Actions"));
         menu.setPreferredSize(new Dimension(340, 0));
 
-        // -------- Fine Scheme --------
+        // ------------ Fine Scheme ------------
         JLabel fsLabel = new JLabel("Fine Scheme");
         fsLabel.setFont(fsLabel.getFont().deriveFont(Font.BOLD));
         fsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -107,7 +107,7 @@ public class AdminPage extends JFrame {
 
 
 
-        // -------- Parking Structure --------
+        // ------------ Parking Structure ------------
         JLabel psLabel = new JLabel("Parking Structure");
         psLabel.setFont(psLabel.getFont().deriveFont(Font.BOLD));
         psLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -126,7 +126,7 @@ public class AdminPage extends JFrame {
         menu.add(overviewBtn);
         menu.add(Box.createVerticalStrut(8));
 
-        // -------- Floor Buttons --------
+        // ------------ Floor Buttons ------------
         JPanel floorsPanel = new JPanel(new GridLayout(1, 5, 8, 8));
         floorsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         floorsPanel.setPreferredSize(new Dimension(300, 42));
@@ -147,7 +147,7 @@ public class AdminPage extends JFrame {
 
 
 
-        // -------- Reports --------
+        // ------------ Reports ------------
         JLabel rptLabel = new JLabel("Reports");
         rptLabel.setFont(rptLabel.getFont().deriveFont(Font.BOLD));
         rptLabel.setAlignmentX(Component.CENTER_ALIGNMENT);

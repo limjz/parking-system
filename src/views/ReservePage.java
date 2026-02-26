@@ -24,7 +24,7 @@ public class ReservePage extends JFrame {
         gbc.gridx = 1; gbc.gridy = 0;
         add(txtPlate, gbc);
 
-        // Buttons
+        // ------------ Buttons ------------
         JPanel btnPanel = new JPanel();
         JButton backButton = new JButton("Back");
         JButton saveButton = new JButton("Save");
@@ -38,6 +38,7 @@ public class ReservePage extends JFrame {
         gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
         add(btnPanel, gbc);
 
+        // ------------ Action Listeners ------------
         backButton.addActionListener(e -> {
             new EntryExitView().setVisible(true);
             dispose();

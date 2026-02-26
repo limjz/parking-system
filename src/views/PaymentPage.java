@@ -24,13 +24,13 @@ public class PaymentPage extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // --- TITLE ---
+        // ------------ TITLE ------------
         JLabel title = new JLabel("Payment Receipt", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 22));
         title.setBorder(new EmptyBorder(20, 0, 20, 0));
         add(title, BorderLayout.NORTH);
 
-        // --- CENTER: INFO & OPTIONS ---
+        // ------------ CENTER: INFO & OPTIONS ------------
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(10, 40, 20, 40));
@@ -43,7 +43,7 @@ public class PaymentPage extends JFrame {
         gbc.insets = new Insets(4, 0, 4, 15);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
-        // --- Calculate Rate ---
+        // ------------ Calculate Rate ------------
         double billableHours = Math.ceil(ticket.getHourParked());
         if (billableHours == 0) billableHours = 1.0;
         double ratePerHour = (ticket.getParkingFeeAmount() > 0) ? (ticket.getParkingFeeAmount() / billableHours) : 0.0;
@@ -95,7 +95,7 @@ public class PaymentPage extends JFrame {
         mainPanel.add(detailsPanel);
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // --- TOTAL ---
+        // ------------ TOTAL ------------
         JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         totalPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         totalPanel.setBackground(new Color(240, 240, 240));
@@ -109,7 +109,7 @@ public class PaymentPage extends JFrame {
         mainPanel.add(totalPanel);
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // --- PAYMENT OPTIONS ---
+        // ------------ PAYMENT OPTIONS ------------
         JLabel lblPay = new JLabel("Select Payment Method:");
         lblPay.setAlignmentX(Component.LEFT_ALIGNMENT);
         lblPay.setFont(new Font("Arial", Font.BOLD, 12));
@@ -140,7 +140,7 @@ public class PaymentPage extends JFrame {
 
         add(mainPanel, BorderLayout.CENTER);
 
-        // --- BOTTOM: BUTTONS  ---
+        // ------------ BOTTOM: BUTTONS  ------------
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
         btnPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 0)); 
 
@@ -209,7 +209,7 @@ public class PaymentPage extends JFrame {
     }
 
     private void processPayment(Ticket ticket, boolean isFullPayment, String paymentMethod) { 
-        // Logic: Pay Full (Total) OR Pay Fee Only (Fee)
+
         double amountToPay = isFullPayment ? ticket.getTotalPayAmount() : ticket.getParkingFeeAmount(); 
         String note = isFullPayment ? "FULL_PAYMENT" : "FEE_ONLY_DEFER_FINE";
 
@@ -234,8 +234,7 @@ public class PaymentPage extends JFrame {
                         debtController.clearDebt(ticket.getPlate());
                     }
                 } else { 
-                    // OPTION B: Paid Fee Only -> Add Current Fine to Debt
-                    // (Old debt stays in file, New fine is appended)
+                    // pay parking fee only, add the fine to debt
                     double newDebt = ticket.getFineAmount(); 
                     if (newDebt > 0) { 
                         debtController.addDebt(ticket.getPlate(), newDebt);

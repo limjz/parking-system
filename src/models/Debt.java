@@ -42,7 +42,7 @@ public class Debt {
     this.debtAmount = 0.0;  
   }
 
-  // -------- Getter ---------- 
+  // ------------ Getter ------------ 
   public String getPlate() { return plateNumber; }
   public Double getDebtAmount () { return debtAmount; }
 

@@ -28,18 +28,12 @@ public class EntryPage extends JFrame {
         JComboBox<VehicleType> vehicleTypeCombo = new JComboBox<>(VehicleType.values());
         gbc.gridx = 1; gbc.gridy = 1; add(vehicleTypeCombo, gbc);     
 
-        // Row 2: Is Handicapped?
-        // gbc.gridx = 0; gbc.gridy = 2; add(new JLabel("Is Handicapped?"), gbc);
-        // JCheckBox chkIsHandicapped = new JCheckBox("Yes");
-        // gbc.gridx = 1; gbc.gridy = 2; add(chkIsHandicapped, gbc);
-
         // Row 3: Handicapped Card Holder
         gbc.gridx = 0; gbc.gridy = 2; add(new JLabel("Handicapped Card Holder"), gbc);
         JCheckBox chkHasCard = new JCheckBox("Yes");
         chkHasCard.setEnabled(false); // Disabled by default
         gbc.gridx = 1; gbc.gridy = 2; add(chkHasCard, gbc);
 
-        //Motorcycle cannot park at handicapped spot 
         // --------- Jcombo Action listener ---------
         vehicleTypeCombo.addActionListener(e -> {
             VehicleType selected = (VehicleType) vehicleTypeCombo.getSelectedItem();
@@ -52,23 +46,8 @@ public class EntryPage extends JFrame {
                 chkHasCard.setEnabled(false); // disable if not handicapped
             }
         });
-        
-        // --- Enable Card Checkbox only if Handicapped is selected ---
-        // chkIsHandicapped.addActionListener(e -> {
-        //     if (chkIsHandicapped.isSelected()) {
-        //         chkHasCard.setEnabled(true);
-        //     } else {
-        //         chkHasCard.setEnabled(false);
-        //         chkHasCard.setSelected(false); 
-        //     }
-        // });
 
-        // Trigger logic immediately (incase default is Motorcycle)
-        // if (vehicleTypeCombo.getSelectedItem() == VehicleType.MOTORCYCLE) {
-        //      chkIsHandicapped.setEnabled(false);
-        // }
-
-        // --------- Buttons ---------
+        // ------------ Buttons ------------
         JPanel btnPanel = new JPanel();
         JButton backButton = new JButton("Back");
         JButton nextButton = new JButton("Next");

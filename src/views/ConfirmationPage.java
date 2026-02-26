@@ -19,12 +19,12 @@ public class ConfirmationPage extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // --- TITLE ---
+        // ------------ TITLE ------------
         JLabel titleLabel = new JLabel("Please Verify Details", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         add(titleLabel, BorderLayout.NORTH);
 
-        // --- DETAILS PANEL ---
+        // ------------ DETAILS PANEL ------------
         JPanel detailsPanel = new JPanel(new GridLayout(6, 2, 10, 10)); // Increased rows
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
@@ -51,24 +51,24 @@ public class ConfirmationPage extends JFrame {
 
         add(detailsPanel, BorderLayout.CENTER);
 
-        // --- BUTTONS ---
+        // ------------ buttons ------------
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
-        JButton btnCancel = new JButton("Cancel");
-        JButton btnConfirm = new JButton("Confirm & Generate Ticket");
+        JButton cancelButton = new JButton("Cancel");
+        JButton confirmButton = new JButton("Confirm & Generate Ticket");
 
-        btnPanel.add(btnCancel);
-        btnPanel.add(btnConfirm);
+        btnPanel.add(cancelButton);
+        btnPanel.add(confirmButton);
         add(btnPanel, BorderLayout.SOUTH);
 
-        // --- ACTIONS ---
-        btnCancel.addActionListener(e -> {
+        // ------------ Action Listener ------------
+        cancelButton.addActionListener(e -> {
             // Return to parking page with correct state
             new ParkingPage(plate, type, isHandicappedPerson, hasCard).setVisible(true);
             dispose();
         });
 
-        btnConfirm.addActionListener(e -> {
-            // Save using hasCard status (as requested for DB)
+        confirmButton.addActionListener(e -> {
+            // Save using hasCard status
             boolean success = ticketController.generateTicket(plate, type.toString(), isHandicappedPerson, hasCard, spotID);
 
             if (success) {

@@ -14,7 +14,7 @@ public class Config {
     public final static String adminPass = "1234";
 
 
-    // --- FILE PATHS---
+    // ------------ FILE PATHS ------------
     // This will build paths like "data/parkingspot_F1.txt"
     public static final String PARKINGSPOT_BASE_FILE = "data/parkingspot_"; 
     
@@ -25,7 +25,7 @@ public class Config {
     public static final String DEBT_FILE = "data/outstanding_fines.txt";
     public static final String TRANSACTION_FILE = "data/transaction.txt";
 
-    // --- DELIMITERS ---
+    // ------------ DELIMITERS ------------
     public static final String DELIMITER_READ = "\\|"; 
     public static final String DELIMITER_WRITE = "|";
 

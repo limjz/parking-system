@@ -66,7 +66,7 @@ public class Ticket {
         this.entryTime = LocalDateTime.now();
     }
 
-    // --- from the object convert to string and save it into .txt ---
+    // from the object convert to string and save it into .txt
     public String toFileString() {
         String exitStr = (exitTime == null) ? "null" : exitTime.format(FMT);
         
@@ -87,7 +87,7 @@ public class Ticket {
         );
     }
 
-    // --- getter ---
+    // ------------ getter ------------
     public String getPlate() { return plate; }
     public String getVehicleType() { return vehicleType; }
     public boolean isHandicappedPerson() { return isHandicappedPerson; }
@@ -118,7 +118,7 @@ public class Ticket {
         return Math.ceil(durationMinutes / 60.0) ; 
     }
     
-    // ------ setter ------
+    // ------------ setter ------------
     public void setAmountPaid(double amount) { this.amountPaid = amount; }
     public void setExitTime (){ 
         this.exitTime = LocalDateTime.now(); 

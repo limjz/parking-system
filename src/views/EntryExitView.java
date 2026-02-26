@@ -36,7 +36,6 @@ public class EntryExitView extends JFrame {
 
         JButton TicketButton = new JButton("View Ticket");
         Config.styleButton(TicketButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
-        // TicketButton.setPreferredSize(btnSize);
         gbc.gridy = 4;
         panel.add(TicketButton, gbc);
 
@@ -47,11 +46,10 @@ public class EntryExitView extends JFrame {
 
         JButton adminLoginButton = new JButton("Admin Login"); 
         Config.styleButton(adminLoginButton, Config.COLOR_PRIMARY, Config.BTN_SIZE_STANDARD);
-        // adminLoginButton.setPreferredSize(btnSize);
         gbc.gridy = 6;
         panel.add(adminLoginButton, gbc);
 
-        // ------------ Action Listeners ------------------
+        // ------------ Action Listeners ------------
         EntryButton.addActionListener(e -> {
             EntryPage entryPage = new EntryPage();
             entryPage.setVisible(true);

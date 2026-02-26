@@ -18,6 +18,7 @@ public class ParkingSpot {
         return id + "," + type + "," + isOccupied + "," + hasHandicappedCard;
     }
 
+    // ------------ Getters ------------
     public String getId() { return id; }
     public String getType() { return type; }
     public boolean isOccupied() { return isOccupied; }
